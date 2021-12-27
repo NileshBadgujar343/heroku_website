@@ -8,7 +8,7 @@ module.exports = app => {
     app.get("/sensors/:tableId", sensors.findAll);
 
     // Retrieve all Users
-    app.post("/users/:userId", sensors.findAll);
+    //app.post("/users/:userId", sensors.findAll);
   
     // Retrieve a single Product with sensorId
     app.get("/sensors/:sensorId", sensors.findOne);
