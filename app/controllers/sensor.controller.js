@@ -37,6 +37,30 @@ exports.findAll = (req, res) => {
     });
   };
 
+// Retrieve all Sensors for bar graph AQI from the database.
+exports.findData = (req, res) => {
+  Sensor.getData(req.params.tableId, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving bar data."
+      });
+    else res.send(data);
+  });
+};
+
+// Retrieve live value of PM25.
+exports.findPm25 = (req, res) => {
+  Sensor.getPm25(req.params.tableId, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving pm25 Live data."
+      });
+    else res.send(data);
+  });
+};
+
 /*
 // Retrieve all Registered Users from the database.
 exports.findAll = (req, res) => {

@@ -7,6 +7,12 @@ module.exports = app => {
     // Retrieve all Products
     app.get("/sensors/:tableId", sensors.findAll);
 
+    //Retrieve bar informations
+    app.get("/sensors/bar/:tableId", sensors.findData);
+
+    //Retrieve live value of pm25
+    app.get("/sensors/pm25/:tableId", sensors.findPm25);
+
     // Retrieve all Users
     //app.post("/users/:userId", sensors.findAll);
   

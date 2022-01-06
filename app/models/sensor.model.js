@@ -46,8 +46,30 @@ Sensor.getAll = (tableId, result) => {
       result(err, null);
       return;
     }
+    result(null, res);
+    return;
+  });
+};
 
-    console.log("sensors: ", res);
+Sensor.getData = (tableId, result) => { 
+  sql.query(`SELECT avg(pm25), avg(pm10), timeat from sensor${tableId} where DATE_SUB(timeat, INTERVAL 1 HOUR ) group by HOUR(timeat) order by id desc limit 72`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+    result(null, res);
+    return;
+  });
+};
+
+Sensor.getPm25 = (tableId, result) => {
+  sql.query(`SELECT pm25, timeat  FROM sensor${tableId} order by id desc limit 1`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
     result(null, res);
     return;
   });
