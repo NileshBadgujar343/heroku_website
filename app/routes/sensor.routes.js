@@ -4,8 +4,14 @@ module.exports = app => {
     // Create a new Product
     app.post("/users/register", sensors.create);
   
-    // Retrieve all Products
+    // Retrieve all Data
     app.get("/sensors/:tableId", sensors.findAll);
+
+     // Retrieve weekly Data
+     app.get("/sensors/week/:tableId", sensors.findWeeklyAll);
+
+     // Retrieve monthly Data
+     app.get("/sensors/month/:tableId", sensors.findMonthlyAll);
 
     //Retrieve bar informations
     app.get("/sensors/bar/:tableId", sensors.findData);

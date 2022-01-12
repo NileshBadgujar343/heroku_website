@@ -37,6 +37,30 @@ exports.findAll = (req, res) => {
     });
   };
 
+// Retrieve all Sensors data weekly from the database.
+exports.findWeeklyAll = (req, res) => {
+  Sensor.getWeeklyAll(req.params.tableId, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving weekly data."
+      });
+    else res.send(data);
+  });
+};
+
+// Retrieve all Sensors data weekly from the database.
+exports.findMonthlyAll = (req, res) => {
+  Sensor.getMonthlyAll(req.params.tableId, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving monthly data."
+      });
+    else res.send(data);
+  });
+};
+
 // Retrieve all Sensors for bar graph AQI from the database.
 exports.findData = (req, res) => {
   Sensor.getData(req.params.tableId, (err, data) => {
@@ -60,6 +84,8 @@ exports.findPm25 = (req, res) => {
     else res.send(data);
   });
 };
+
+
 
 /*
 // Retrieve all Registered Users from the database.

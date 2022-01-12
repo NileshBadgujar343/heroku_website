@@ -51,6 +51,30 @@ Sensor.getAll = (tableId, result) => {
   });
 };
 
+Sensor.getWeeklyAll = (tableId, result) => {
+  sql.query(`SELECT avg(pm25) as pm25, avg(pm10) as pm10, timeat from sensor${tableId} where DATE_SUB(timeat, INTERVAL 1 WEEK ) group by Week(timeat) order by id desc limit 12`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+    result(null, res);
+    return;
+  });
+};
+
+Sensor.getMonthlyAll = (tableId, result) => {
+  sql.query(`SELECT avg(pm25) as pm25, avg(pm10) as pm10, timeat from sensor${tableId} where DATE_SUB(timeat, INTERVAL 1 MONTH ) group by Month(timeat) order by id desc limit 12`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+    result(null, res);
+    return;
+  });
+};
+
 Sensor.getData = (tableId, result) => { 
   sql.query(`SELECT avg(pm25), avg(pm10), timeat from sensor${tableId} where DATE_SUB(timeat, INTERVAL 1 HOUR ) group by HOUR(timeat) order by id desc limit 72`, (err, res) => {
     if (err) {
@@ -64,7 +88,7 @@ Sensor.getData = (tableId, result) => {
 };
 
 Sensor.getPm25 = (tableId, result) => {
-  sql.query(`SELECT pm25, timeat  FROM sensor${tableId} order by id desc limit 1`, (err, res) => {
+  sql.query(`SELECT pm25, pm10, timeat  FROM sensor${tableId} order by id desc limit 1`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -74,6 +98,7 @@ Sensor.getPm25 = (tableId, result) => {
     return;
   });
 };
+
 
 Sensor.updateById = (id, sensor, result) => {
   sql.query(
