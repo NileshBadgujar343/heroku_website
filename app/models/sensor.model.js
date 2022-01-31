@@ -4,19 +4,42 @@ const sql = require("./db.js");
 const Sensor = function(sensor) {
   this.email = sensor.email;
   this.name = sensor.name;
+  this.token = sensor.token;
+  this.password = sensor.password;
   this.active = sensor.active;
 };
 
 Sensor.create = (newSensor, result) => {
-  sql.query("INSERT INTO sensors SET ?", newSensor, (err, res) => {
+  sql.query("INSERT INTO users SET ?", newSensor, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
       return;
     }
 
-    console.log("created sensor: ", { id: res.insertId, ...newSensor });
+    console.log("User Saved: ", { id: res.insertId, ...newSensor });
     result(null, { id: res.insertId, ...newSensor });
+  });
+};
+
+Sensor.signin = (newUser, result) => {
+  sql.query(`SELECT * FROM users WHERE email = '${newUser.user}'`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+    }
+
+    if (res.length) {
+      //console.log("found sensor: ", res[0]);
+      
+      result(null, res[0]);
+      return;
+    }
+
+    // not found Sensor with the id
+    result({ kind: "not_found" }, null);
+    return;
+    //return res.json({ user: res[0], token: res[0].token });
   });
 };
 

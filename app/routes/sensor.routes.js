@@ -3,6 +3,12 @@ module.exports = app => {
   
     // Create a new Product
     app.post("/users/register", sensors.create);
+
+    // Sign in User
+    app.post("/users/signin", sensors.signin);
+
+    // Signout User
+    app.post("/users/signout", sensors.signout);
   
     // Retrieve all Data
     app.get("/sensors/:tableId", sensors.findAll);

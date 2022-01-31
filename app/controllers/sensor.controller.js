@@ -1,4 +1,7 @@
 const Sensor = require("../models/sensor.model.js");
+const utils = require('../../utils');
+const jwt = require('jsonwebtoken');
+const sql = require("../models/db.js");
 
 // Create and Save a new Sensor
 exports.create = (req, res) => {
@@ -8,14 +11,26 @@ exports.create = (req, res) => {
       message: "Content can not be empty!"
     });
   }
+
+  const userData = {
+    password: req.body.pasword,
+    name: req.body.name,
+    username: req.body.email,
+    isAdmin: true
+  };
+
+  // generate token
+  const token = utils.generateToken(userData);
   // Create a Sensor
-  const sensor = new Sensor({
+  const user = new Sensor({
     email: req.body.email,
     name: req.body.name,
-    active: req.body.active
+    token: token,
+    password: req.body.password,
+    active: false
   });
   // Save Sensor in the database
-  Sensor.create(sensor, (err, data) => {
+  Sensor.create(user, (err, data) => {
     if (err)
       res.status(500).send({
         message:
@@ -23,6 +38,85 @@ exports.create = (req, res) => {
       });
     else res.send(data);
   });
+};
+
+exports.signin = (req, res) => {
+  const user = req.body.username;
+  const pwd = req.body.password;
+
+  // return 400 status if username/password is not exist
+  if (!user || !pwd) {
+    return res.status(400).json({
+      error: true,
+      message: "Username or Password required."
+    });
+  }
+  const u = {user, pwd};
+  
+  // Save Sensor in the database
+  Sensor.signin(u, (err, data) => {
+    if (err){
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while login."
+      });
+    }
+    else{
+      console.log(data)//res.send(data);
+      if (user !== data.email || pwd !== data.password) {
+        return res.status(401).json({
+          error: true,
+          message: "Username or Password is Wrong."
+        });
+      }
+      if (!data.token) {
+        return res.status(400).json({
+          error: true,
+          message: "Token is required."
+        });
+      }
+      jwt.verify(data.token, process.env.JWT_SECRET, function (err, user) {
+        if (err) return res.status(401).json({
+          error: true,
+          message: "Your License has been expired!"
+        });
+        if (data.active) {
+          return res.status(400).json({
+            error: true,
+            message: "Please logout from other device first!"
+          });
+        }
+        sql.query("UPDATE users SET active = 1 WHERE email= ?",data.email , (err, res) => {
+          if (err) {
+            console.log("error: ", err);
+            return res.status(500).json({
+              error: true,
+              message: "Some error occurred while login."
+            });
+          }
+    
+        });
+        return res.json({ user: data, token: data.token });
+      });
+      
+    } 
+  });
+};
+
+exports.signout = (req, res) => {
+  const email = req.body.email;
+
+  sql.query("UPDATE users SET active = 0 WHERE email= ?",email , (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      return res.status(500).json({
+        error: true,
+        message: "Some error occurred while logout."
+      });
+    }
+    
+  });
+  return res.json({ email: email });
 };
 
 // Retrieve all Sensors from the database.
