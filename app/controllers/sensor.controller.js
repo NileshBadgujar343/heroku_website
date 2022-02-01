@@ -3,6 +3,8 @@ const utils = require('../../utils');
 const jwt = require('jsonwebtoken');
 const sql = require("../models/db.js");
 
+
+
 // Create and Save a new Sensor
 exports.create = (req, res) => {
   // Validate request

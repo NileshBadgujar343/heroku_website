@@ -129,15 +129,16 @@ app.get('/verifyToken', function (req, res) {
     });
 
     // return 401 status if the userId does not match.
-    if (user.userId !== userData.userId) {
+    {/*if (user.userId !== userData.userId) {
       return res.status(401).json({
         error: true,
         message: "Invalid user."
       });
     }
     // get basic user details
-    var userObj = utils.getCleanUser(userData);
-    return res.json({ user: userObj, token });
+  var userObj = utils.getCleanUser(userData);*/}
+    //return res.json({ user: userObj, token });
+    return;
   });
 });
 require("./app/routes/sensor.routes.js")(app);

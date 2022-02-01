@@ -1,6 +1,7 @@
 module.exports = app => {
     const sensors = require("../controllers/sensor.controller.js");
   
+
     // Create a new Product
     app.post("/users/register", sensors.create);
 
