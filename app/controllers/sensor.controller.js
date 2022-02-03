@@ -123,7 +123,7 @@ exports.signout = (req, res) => {
 
 // Retrieve all Sensors from the database.
 exports.findAll = (req, res) => {
-    Sensor.getAll(req.params.tableId, (err, data) => {
+    Sensor.getAll(req.params.tableId, req.params.value, (err, data) => {
       if (err)
         res.status(500).send({
           message:

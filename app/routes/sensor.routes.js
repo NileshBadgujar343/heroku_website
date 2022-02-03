@@ -12,7 +12,7 @@ module.exports = app => {
     app.post("/users/signout", sensors.signout);
   
     // Retrieve all Data
-    app.get("/sensors/:tableId", sensors.findAll);
+    app.get("/sensors/:tableId/:value", sensors.findAll);
 
      // Retrieve weekly Data
      app.get("/sensors/week/:tableId", sensors.findWeeklyAll);

@@ -1,5 +1,4 @@
 const sql = require("./db.js");
-
 // constructor
 const Sensor = function(sensor) {
   this.email = sensor.email;
@@ -62,8 +61,9 @@ Sensor.findById = (sensorId, result) => {
   });
 };
 
-Sensor.getAll = (tableId, result) => {
-  sql.query(`SELECT * FROM sensor${tableId}`, (err, res) => {
+Sensor.getAll = (tableId, value, result) => {
+  var sDate = value.split(",");
+  sql.query(`SELECT * FROM sensor${tableId} WHERE (timeat BETWEEN '${sDate[0]}' AND '${sDate[1]}')`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
