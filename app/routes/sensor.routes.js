@@ -15,16 +15,16 @@ module.exports = app => {
     app.get("/sensors/:tableId/:value", sensors.findAll);
 
      // Retrieve weekly Data
-     app.get("/sensors/week/:tableId", sensors.findWeeklyAll);
+     app.get("/sensor/week/:tableId", sensors.findWeeklyAll);
 
      // Retrieve monthly Data
-     app.get("/sensors/month/:tableId", sensors.findMonthlyAll);
+     app.get("/sensor/month/:tableId", sensors.findMonthlyAll);
 
     //Retrieve bar informations
-    app.get("/sensors/bar/:tableId", sensors.findData);
+    app.get("/sensor/bar/:tableId", sensors.findData);
 
     //Retrieve live value of pm25
-    app.get("/sensors/pm25/:tableId", sensors.findPm25);
+    app.get("/sensor/pm25/:tableId", sensors.findPm25);
 
     // Retrieve all Users
     //app.post("/users/:userId", sensors.findAll);
