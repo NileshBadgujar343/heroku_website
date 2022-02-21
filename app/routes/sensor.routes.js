@@ -14,6 +14,15 @@ module.exports = app => {
     // Retrieve all Data
     app.get("/sensors/:tableId/:value", sensors.findAll);
 
+    // Retrieve All tables data
+    app.get("/sensor/all/:value", sensors.findTAll);
+
+    // Retrieve CP Data
+    app.get("/cp/:tableId/:value", sensors.findCPAll);
+
+    // Retrieve AV Data
+    app.get("/av/:tableId/:value", sensors.findAVAll);
+
      // Retrieve weekly Data
      app.get("/sensor/week/:tableId", sensors.findWeeklyAll);
 

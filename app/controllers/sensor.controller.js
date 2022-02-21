@@ -1,8 +1,7 @@
 const Sensor = require("../models/sensor.model.js");
 const utils = require('../../utils');
 const jwt = require('jsonwebtoken');
-const sql = require("../models/db.js");
-
+const {connection: sql} = require("../models/db");
 
 
 // Create and Save a new Sensor
@@ -132,6 +131,42 @@ exports.findAll = (req, res) => {
       else res.send(data);
     });
   };
+
+// Retrieve all Sensors from the database.
+exports.findTAll = (req, res) => {
+  Sensor.getTAll(req.params.value, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving data."
+      });
+    else res.send(data);
+  });
+};
+
+// Retrieve all Sensors from the database.
+exports.findCPAll = (req, res) => {
+  Sensor.getCPAll(req.params.tableId, req.params.value, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving data."
+      });
+    else res.send(data);
+  });
+};
+
+// Retrieve all Sensors from the database.
+exports.findAVAll = (req, res) => {
+  Sensor.getAVAll(req.params.tableId, req.params.value, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving data."
+      });
+    else res.send(data);
+  });
+};
 
 // Retrieve all Sensors data weekly from the database.
 exports.findWeeklyAll = (req, res) => {
