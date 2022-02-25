@@ -14,7 +14,6 @@ exports.create = (req, res) => {
   }
 
   const userData = {
-    password: req.body.pasword,
     name: req.body.name,
     username: req.body.email,
     isAdmin: true
@@ -44,7 +43,7 @@ exports.create = (req, res) => {
 exports.signin = (req, res) => {
   const user = req.body.username;
   const pwd = req.body.password;
-
+  
   // return 400 status if username/password is not exist
   if (!user || !pwd) {
     return res.status(400).json({
@@ -63,7 +62,7 @@ exports.signin = (req, res) => {
       });
     }
     else{
-      console.log(data)//res.send(data);
+      console.log(data); //res.send(data);
       if (user !== data.email || pwd !== data.password) {
         return res.status(401).json({
           error: true,
@@ -81,6 +80,34 @@ exports.signin = (req, res) => {
           error: true,
           message: "Your License has been expired!"
         });
+        
+        });
+        // Generate token here
+        const userData = {
+          username: user,
+          name: data.name
+        };
+      
+        // generate token
+        const token = utils.generateFToken(userData);
+        const userD = new Sensor({
+          email: req.body.username,
+          name: data.name,
+          token: token
+        });
+
+        Sensor.tcheck(userD, (err, data) => {
+          if (err)
+            res.status(500).send({
+              message:
+                err.message || "Some error occurred while checking the user-token."
+            });
+          else
+            console.log(data);
+            
+      });
+
+        /*
         if (data.active) {
           return res.status(400).json({
             error: true,
@@ -96,17 +123,17 @@ exports.signin = (req, res) => {
             });
           }
     
-        });
-        return res.json({ user: data, token: data.token });
-      });
-      
+        });*/
+
+        
+        return res.json({ user: userD, token: data.token });
     } 
   });
 };
 
 exports.signout = (req, res) => {
   const email = req.body.email;
-
+  
   sql.query("UPDATE users SET active = 0 WHERE email= ?",email , (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -118,6 +145,21 @@ exports.signout = (req, res) => {
     
   });
   return res.json({ email: email });
+};
+
+exports.verify = (req, res) => {
+  const token = req.body.token || req.query.token; //this is F Token from user
+  const username = req.body.user.email || req.query.user.email;
+  const u = {token, username};
+  Sensor.verifyFtoken(u, (err, data) => {
+    if (err){
+      console.log("error");
+        res.status(401).send({
+        message: err.message || "Token is required."
+      });
+    }
+    else{ res.send(data); }
+  });
 };
 
 // Retrieve all Sensors from the database.

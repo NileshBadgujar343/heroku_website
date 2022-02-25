@@ -8,6 +8,9 @@ module.exports = app => {
     // Sign in User
     app.post("/users/signin", sensors.signin);
 
+    // Check Single user Login
+    app.post("/verifyFtoken", sensors.verify);
+
     // Signout User
     app.post("/users/signout", sensors.signout);
   

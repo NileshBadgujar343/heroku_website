@@ -14,7 +14,21 @@ function generateToken(user) {
   };
 
   return jwt.sign(u, process.env.JWT_SECRET, {
-    expiresIn: '365d' // expires in 24 hours
+    expiresIn: '365d' // expires in 365 days
+  });
+}
+
+function generateFToken(user) {
+  //1. Don't use password and other sensitive fields
+  //2. Use the information that are useful in other parts
+  if (!user) return null;
+
+  var u = {
+    username: user.username
+  };
+
+  return jwt.sign(u, process.env.JWT_SECRET, {
+    expiresIn: '1d' // expires in 365 days
   });
 }
 
@@ -31,5 +45,6 @@ function getCleanUser(user) {
 
 module.exports = {
   generateToken,
+  generateFToken,
   getCleanUser
 }

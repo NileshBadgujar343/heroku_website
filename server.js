@@ -1,5 +1,5 @@
 require('dotenv').config();
-const sql = require("./app/models/db.js");
+const {connection:sql} = require("./app/models/db.js");
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -115,6 +115,8 @@ app.get('/', (req, res) => {
 app.get('/verifyToken', function (req, res) {
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token;
+  
+
   if (!token) {
     return res.status(400).json({
       error: true,
@@ -141,6 +143,46 @@ app.get('/verifyToken', function (req, res) {
     return;
   });
 });
+
+// verify the F token and return it if it's valid
+/*
+app.post('/verifyFtoken', function (req, res) {
+  // check header or url parameters or post parameters for token
+  const token = req.body.token || req.query.token; //this is F Token from user
+  const username = req.body.user.email || req.query.user.email;
+  if (!token) {
+    return res.status(400).json({
+      error: true,
+      message: "Token is required."
+    });
+  }
+  console.log("see here");
+  console.log(req.body);
+    sql.query(`select token from user_token where username = '${username}'`, (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      console.log(res.length);
+      if (res.length > 0) {
+        // not found Sensor with the id
+        console.log("DB Token is::::", res[0].token);
+        if(res[0].token !== token){
+          return res.status(401).json({
+            error: true,
+            message: "Token is invalid."
+          });
+        }
+        
+      }
+      return;
+
+    });
+    
+});*/
+
+
 require("./app/routes/sensor.routes.js")(app);
 app.listen(port, () => {
   console.log('Server started on: ' + port);

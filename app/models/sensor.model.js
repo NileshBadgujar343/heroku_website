@@ -22,6 +22,71 @@ Sensor.create = (newSensor, result) => {
   });
 };
 
+Sensor.verifyFtoken = (body, result) => {
+    sql.query(`select token from user_token where username = '${body.username}'`, (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length > 0) {
+        if(res[0].token != body.token){
+          result({ kind: "Invalid token" }, null);
+          return;
+        }
+        
+      }
+      result(null, {...body});
+      return;
+
+    });
+};
+
+Sensor.tcheck = (user, result) => {
+  sql.query(`select COUNT(*) as allcount from user_token where username = '${user.email}'`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+    if (res[0].allcount > 0) {
+      sql.query(`update user_token set token = '${user.token}' where username = '${user.email}'`, (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(err, null);
+          return;
+        }
+        if (res.affectedRows == 0) {
+          // not found Sensor with the id
+          result({ kind: "not_found" }, null);
+          return;
+        }
+    
+        console.log("updated user-token: ", { ...user });
+        result(null, { ...user });
+        return;
+      });
+
+    }else{
+      sql.query("insert into user_token(username, token) values(?, ?)", [user.email, user.token], (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(err, null);
+          return;
+        }
+        if (res.affectedRows == 0) {
+          // not found Sensor with the id
+          result({ kind: "not_found" }, null);
+          return;
+        }
+    
+        console.log("user-token inserted: ", { ...user });
+        result(null, { ...user });
+      });
+    }
+  });
+};
+
 Sensor.signin = (newUser, result) => {
   sql.query(`SELECT * FROM users WHERE email = '${newUser.user}'`, (err, res) => {
     if (err) {
