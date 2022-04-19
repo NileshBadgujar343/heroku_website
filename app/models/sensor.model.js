@@ -142,7 +142,7 @@ Sensor.getAll = (tableId, value, result) => {
 
 Sensor.getTAll = (value, result) => {
   var sDate = value.split(",");
-  sql.query(`SELECT * FROM sensors WHERE (timeat BETWEEN '${sDate[0]}' AND '${sDate[1]}')`, (err, res) => {
+  sql.query(`SELECT timeat, s1_pm25, s1_pm10, s2_pm25, s2_pm10, s3_pm25, s3_pm10, s4_pm25, s4_pm10, s5_pm25, s5_pm10, s6_pm25, s6_pm10, s7_pm25, s7_pm10, s8_pm25, s8_pm10, s9_pm25, s9_pm10, s10_pm25, s10_pm10, s11_pm25, s11_pm10, s12_pm25, s12_pm10 FROM sensors WHERE (timeat BETWEEN '${sDate[0]}' AND '${sDate[1]}')`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
