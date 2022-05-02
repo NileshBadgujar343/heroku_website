@@ -186,6 +186,21 @@ exports.findTAll = (req, res) => {
   });
 };
 
+exports.store = (req, res) => {
+  console.log(req);
+  const accessKey = req.headers['accesskey'];
+  //const username = req.body.user.email || req.query.user.email;
+  //const u = {token, username};
+  Sensor.verifyAccessKey(accessKey, (err, data) => {
+    if (err){
+        res.status(401).send({
+        message: err.message || "AccessKey is required."
+      });
+    }
+    else{ res.send(data); }
+  });
+};
+
 // Retrieve all Sensors from the database.
 exports.findCPAll = (req, res) => {
   Sensor.getCPAll(req.params.tableId, req.params.value, (err, data) => {

@@ -42,6 +42,32 @@ Sensor.verifyFtoken = (body, result) => {
     });
 };
 
+Sensor.verifyAccessKey = (key, result) => {
+  accessKey = "abjhfyYGAyugfbhvf"
+  /*
+  sql.query(`select token from user_token where username = '${body.username}'`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+    */
+   console.log(key);
+      if(key != accessKey){
+        result({ kind: "Invalid AccessKey" }, null);
+        return;
+      }
+      else{
+        // write store logic here
+        console.log("Data Triggering");
+      }
+      
+    
+    result(null, {...key});
+    return;
+
+  }
+
 Sensor.tcheck = (user, result) => {
   sql.query(`select COUNT(*) as allcount from user_token where username = '${user.email}'`, (err, res) => {
     if (err) {

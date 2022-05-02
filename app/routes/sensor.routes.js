@@ -20,6 +20,8 @@ module.exports = app => {
     // Retrieve All tables data
     app.get("/sensor/all/:value", sensors.findTAll);
 
+    app.post("/sensordata", sensors.store);
+
     // Retrieve CP Data
     app.get("/cp/:tableId/:value", sensors.findCPAll);
 
