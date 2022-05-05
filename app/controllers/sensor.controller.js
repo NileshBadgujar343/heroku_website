@@ -187,18 +187,40 @@ exports.findTAll = (req, res) => {
 };
 
 exports.store = (req, res) => {
-  console.log(req);
-  const accessKey = req.headers['accesskey'];
-  //const username = req.body.user.email || req.query.user.email;
-  //const u = {token, username};
-  Sensor.verifyAccessKey(accessKey, (err, data) => {
-    if (err){
-        res.status(401).send({
-        message: err.message || "AccessKey is required."
-      });
-    }
-    else{ res.send(data); }
+  accessKey = "habvuhybduifhbhjBinng"
+  const key = req.headers['accesskey'];
+  if(key != accessKey){
+    res.status(401).send({
+      message: err.message || "Invalid AccessKey."
   });
+}
+  else{
+    const sensor_id = req.body["SensorId"];
+    const pm25_atm_a = req.body["pm2_5_atm"];
+    const pm25_atm_b = req.body["pm2_5_atm_b"];
+    const pm25_cf_1_a = req.body["pm2_5_cf_1"];
+    const pm25_cf_1_b = req.body["pm2_5_cf_1_b"];
+    const pm10_atm_a = req.body["pm10_0_atm"];
+    const pm10_atm_b = req.body["pm10_0_atm_b"];
+    const pm10_cf_1_a = req.body["pm10_0_cf_1"];
+    const pm10_cf_1_b = req.body["pm10_0_cf_1_b"];
+    const pm25_atm = (pm25_atm_a + pm25_atm_b)/2;
+    const pm10_atm = (pm10_atm_a + pm10_atm_b)/2;
+    const temp_f = req.body["current_temp_f"];
+    const humidity = req.body["current_humidity"];
+    const pressure = req.body["pressure"];
+    // write store logic here change as per table. [IMP]
+    console.log(sensor_id);
+    sql.query("insert into iitb_sensor1(pm2_5_atm_a, pm2_5_atm_b, pm2_5_cf_1_a, pm2_5_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm2_5_atm, pm10_atm, temp_f, humidity, pressure) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [pm25_atm_a, pm25_atm_b, pm25_cf_1_a, pm25_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm25_atm, pm10_atm, temp_f, humidity, pressure], (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        res.status(401).send({
+          message: err.message || "Error occured while dumping."
+    });
+  }
+});
+    console.log("Record has been saved.");
+  }
 };
 
 // Retrieve all Sensors from the database.
