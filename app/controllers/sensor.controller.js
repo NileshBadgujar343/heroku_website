@@ -2,6 +2,42 @@ const Sensor = require("../models/sensor.model.js");
 const utils = require('../../utils');
 const jwt = require('jsonwebtoken');
 const {connection: sql} = require("../models/db");
+const mqtt = require('mqtt');
+
+const host = '89.47.165.123'
+const port = '8883'
+const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
+
+const connectUrl = `mqtt://${host}:${port}`
+
+const client = mqtt.connect(connectUrl, {
+  clientId,
+  clean: true,
+  connectTimeout: 4000,
+  username: 'sasautomation',
+  password: 'sasautomation',
+  reconnectPeriod: 1000,
+})
+/*const topic = ''
+client.on('connect', () => {
+  console.log('Connected')
+  client.subscribe([topic], () => {
+    console.log(`Subscribe to topic '${topic}'`)
+  })
+})*/
+client.on('message', (topic, payload) => {
+  //console.log('Received Message:', topic, payload.toString())
+})
+client.on('connect', () => {
+  console.log("Connection established.")
+  /*client.publish('iitb_sensor1/', 'nodejs mqtt test', { qos: 0, retain: false }, (error) => {
+    if (error) {
+      console.error(error)
+    }
+  })*/
+
+})
+
 
 
 // Create and Save a new Sensor
@@ -211,6 +247,15 @@ exports.store = (req, res) => {
     const pressure = req.body["pressure"];
     // write store logic here change as per table. [IMP]
     console.log(sensor_id);
+    // Publishing HERE
+    const result = {sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure}
+    //String(sensor_id)
+    client.publish('iitb_sensor1/', result, { qos: 0, retain: false }, (error) => {
+      if (error) {
+        console.error(error)
+      }
+    })
+    // compare sensorid then save
     sql.query("insert into iitb_sensor1(pm2_5_atm_a, pm2_5_atm_b, pm2_5_cf_1_a, pm2_5_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm2_5_atm, pm10_atm, temp_f, humidity, pressure) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [pm25_atm_a, pm25_atm_b, pm25_cf_1_a, pm25_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm25_atm, pm10_atm, temp_f, humidity, pressure], (err, res) => {
       if (err) {
         console.log("error: ", err);
