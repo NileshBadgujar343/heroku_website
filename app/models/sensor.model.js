@@ -22,6 +22,19 @@ Sensor.create = (newSensor, result) => {
   });
 };
 
+Sensor.getRetrieveSensor =(value, result) =>{
+  var sDate = value.split(",");
+  sql.query(`SELECT * FROM iitb_sensor1 WHERE (timeat BETWEEN '${sDate[0]}' AND '${sDate[1]}')`, (err, res) =>{
+    if(err){
+      console.log("error: ", err);
+      result(err,null);
+      return;
+    }
+    result(null, res);
+    return;
+  });
+
+};
 Sensor.verifyFtoken = (body, result) => {
     sql.query(`select token from user_token where username = '${body.username}'`, (err, res) => {
       if (err) {

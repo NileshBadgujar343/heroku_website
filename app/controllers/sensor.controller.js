@@ -248,9 +248,10 @@ exports.store = (req, res) => {
     // write store logic here change as per table. [IMP]
     console.log(sensor_id);
     // Publishing HERE
-    const result = {sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure}
+    //const result = {sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure}
     //String(sensor_id)
-    client.publish('iitb_sensor1/', result, { qos: 0, retain: false }, (error) => {
+    //result = String(sensor_id)+","+String(pm25_atm)+","+String(pm10_atm)+","+String(temp_f)+","+String(humidity)+","+String(pressure)
+    client.publish('iitb_sensor1/', String(sensor_id)+","+String(pm25_atm)+","+String(pm10_atm)+","+String(temp_f)+","+String(humidity)+","+String(pressure) , { qos: 0, retain: false }, (error) => {
       if (error) {
         console.error(error)
       }
@@ -278,6 +279,17 @@ exports.findCPAll = (req, res) => {
       });
     else res.send(data);
   });
+};
+
+exports.retrieveSensor =(req, res) =>{
+  Sensor.getRetrieveSensor(req.params.value, (err, data) => {
+    if(err)
+    res.status(500).send({
+      message:
+      err.message|| "Some error occurred while retrieving data."
+    });
+    else res.send(data);
+  })
 };
 
 // Retrieve all Sensors from the database.
