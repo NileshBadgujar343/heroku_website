@@ -246,6 +246,18 @@ Sensor.getData = (tableId, result) => {
   });
 };
 
+Sensor.getIitbLine = (result) => { 
+  sql.query(`SELECT pm2_5_atm, pm10_atm, timeat from iitb_sensor1 order by id desc limit 10`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+    result(null, res);
+    return;
+  });
+};
+
 Sensor.getPm25 = (tableId, result) => {
   sql.query(`SELECT avg(pm25), avg(pm10), timeat  FROM sensor${tableId} where DATE_SUB(timeat, INTERVAL 1 DAY) group by DAY(timeat) order by id desc limit 1`, (err, res) => {
     if (err) {

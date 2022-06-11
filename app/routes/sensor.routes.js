@@ -20,10 +20,13 @@ module.exports = app => {
     // Retrieve All tables data
     app.get("/sensor/all/:value", sensors.findTAll);
 
+    //IITB Changes here
     app.post("/sensordata", sensors.store);
 
     app.get("/retrievedata", sensors.retrieveSensor);
-    
+
+    app.get("/iitb/line/", sensors.findIitbLine);
+
     // Retrieve CP Data
     app.get("/cp/:tableId/:value", sensors.findCPAll);
 

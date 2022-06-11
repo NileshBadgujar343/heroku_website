@@ -340,6 +340,17 @@ exports.findData = (req, res) => {
   });
 };
 
+exports.findIitbLine = (req, res) => {
+  Sensor.getIitbLine((err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving iitb line data."
+      });
+    else res.send(data);
+  });
+};
+
 // Retrieve live value of PM25.
 exports.findPm25 = (req, res) => {
   Sensor.getPm25(req.params.tableId, (err, data) => {
