@@ -23,7 +23,7 @@ module.exports = app => {
     //IITB Changes here
     app.post("/sensordata", sensors.store);
 
-    app.get("/retrievedata", sensors.retrieveSensor);
+    app.get("/retrievedata/:value", sensors.retrieveSensor);
 
     app.get("/iitb/line/", sensors.findIitbLine);
 

@@ -3,13 +3,127 @@ const utils = require('../../utils');
 const jwt = require('jsonwebtoken');
 const {connection: sql} = require("../models/db");
 const mqtt = require('mqtt');
+const axios = require('axios').default;
 
 const host = '89.47.165.123'
 const port = '8883'
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
 const connectUrl = `mqtt://${host}:${port}`
-
+const postObservationData = obj => {
+  const result = {
+    "observations": [
+     { "kind": "measurement",
+       "type": "humidity",
+       "unit": { "name": "relative",
+                 "symbol": "%"
+               },
+       "value": obj.humidity
+     },
+    { "kind": "measurement",
+       "type": "temperature",
+       "unit": { "name": "celcius",
+                 "symbol": "°C"
+               },
+       "value": obj.temperature
+      
+     },
+     { "kind": "measurement",
+       "type": "pressure",
+       "unit": { "name": "millibars",
+                 "symbol": "mbar"
+               },
+       "value": obj.pressure
+      
+     },
+     { "kind": "measurement",
+       "type": "pm25",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": obj['pm2.5']
+      
+     },
+     { "kind": "measurement",
+       "type": "pm10",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": obj['pm10.0']
+      
+     },
+    ],
+     "thing": {
+       "name": "purpleair_f7fe",
+       "geometry" : {
+                    "type" : "Point",
+                    "coordinates" : [
+                            18.64579,
+                            73.79922
+                    ]
+            },
+        "topic" : "purpleair_f7fe",
+       "supportedObservationTypes" : {
+                    "measurement" : [
+                            "temperature",
+                            "humidity",
+                            "pressure",
+                            "pm25",
+                            "pm10"
+                    ],
+                    "event" : [ ],
+            }
+     }
+    }
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhcyIsImlhdCI6MTY2NDM0MzU0MX0.zGsrdmDWjc9pWUBgUSQdTBaeaLzcBGyZ6sZRPxW2Ryk'
+    }
+      return axios.post('http://89.47.165.123:8080/api/observations', result,
+      {
+        headers: headers
+      })
+};
+const postTableData = obj => {
+  const result = { 
+    "table": {
+      "temperature": obj.temperature,
+      "humidity": obj.humidity,
+      "pressure": obj.pressure,
+      "pm25": obj['pm2.5'],
+      "pm10": obj['pm10.0']
+    },
+  "thing": {
+     "name": "purpleair_f7fe",
+     "geometry" : {
+                  "type" : "Point",
+                  "coordinates" : [
+                          -122.148882,
+                          37.485147
+                  ]
+          },
+      "topic" : "purpleair_f7fe",
+     "supportedObservationTypes" : {
+                  "measurement" : [
+                          "temperature",
+                          "humidity",
+                          "pressure",
+                          "pm25",
+                          "pm10"
+                  ],
+                  "event" : [ ]
+          }
+     }
+  };
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhcyIsImlhdCI6MTY2NDM0MzU0MX0.zGsrdmDWjc9pWUBgUSQdTBaeaLzcBGyZ6sZRPxW2Ryk'
+  }
+    return axios.post('http://89.47.165.123:8080/api/table', result,
+    {
+      headers: headers
+    })
+};
 const client = mqtt.connect(connectUrl, {
   clientId,
   clean: true,
@@ -26,15 +140,31 @@ client.on('connect', () => {
   })
 })*/
 client.on('message', (topic, payload) => {
-  //console.log('Received Message:', topic, payload.toString())
+  //coming data here we will call processed data from here then update final copy
+  if (topic == "purpleair_f7fe"){
+    obj = JSON.parse(payload.toString().replace(/'/g, '"'))
+    Promise.all([postTableData(obj), postObservationData(obj)])
+    .then(function (results){
+      console.log("Result 1:: ",results[0]);
+      console.log("Result 2:: ",results[1]);
+    })
+    .catch(function(errors){
+      errors[0] && console.log(errors[0]); 
+      errors[1] && console.log(errors[1])
+    })
+    //postTableData(obj);
+  
+  }
+  console.log('Received Message:', topic, payload.toString())
 })
 client.on('connect', () => {
   console.log("Connection established.")
-  /*client.publish('iitb_sensor1/', 'nodejs mqtt test', { qos: 0, retain: false }, (error) => {
+  client.subscribe(['purpleair_f7fe', 'iitb_sensor2/', 'iitb_sensor3', 'iitb_sensor4', 'iitb_sensor5'], { qos: 0, retain: false }, (error) => {
     if (error) {
       console.error(error)
     }
-  })*/
+    console.log("Subscribed to topic:: purpleair_f7fe")
+  })
 
 })
 
