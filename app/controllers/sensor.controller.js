@@ -8,9 +8,61 @@ const axios = require('axios').default;
 const host = '89.47.165.123'
 const port = '8883'
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
-
 const connectUrl = `mqtt://${host}:${port}`
-const postObservationData = obj => {
+
+const client = mqtt.connect(connectUrl, {
+  clientId,
+  clean: true,
+  connectTimeout: 4000,
+  username: 'sasautomation',
+  password: 'sasautomation',
+  reconnectPeriod: 1000,
+})
+/*const topic = ''
+client.on('connect', () => {
+  console.log('Connected')
+  client.subscribe([topic], () => {
+    console.log(`Subscribe to topic '${topic}'`)
+  })
+})*/
+client.on('message', (topic, payload) => {
+  //coming data here we will call processed data from here then update final copy
+  /*if (topic == "purpleair_f7fe"){
+    obj = JSON.parse(payload.toString().replace(/'/g, '"'))
+    Promise.all([postTableData(obj), postObservationData(obj)])
+    .then(function (results){
+      console.log("Result 1:: ",results[0].data);
+      console.log("Result 2:: ",results[1].data);
+    })
+    .catch(function(errors){
+      errors[0] && console.log(errors[0]); 
+      errors[1] && console.log(errors[1])
+    })
+    //postTableData(obj);
+  
+  }*/
+  console.log('Received Message:', topic, payload.toString())
+})
+client.on('connect', () => {
+  console.log("Connection established.")
+  // client.subscribe(['purpleair_f7fe', 'iitb_sensor2/', 'iitb_sensor3', 'iitb_sensor4', 'iitb_sensor5'], { qos: 0, retain: false }, (error) => {
+  //   if (error) {
+  //     console.error(error)
+  //   }
+  //   console.log("Subscribed to topic:: purpleair_f7fe")
+  // })
+
+})
+
+const publishController = (data) => {
+    // Now, only 1 sensor is link , else you have to write condition for specific sensor
+    client.publish('purpleair_f7fe', JSON.stringify(data) , { qos: 0, retain: false }, (error) => {
+      if (error) {
+          console.error(error)
+        }
+      })
+};
+const postObservationData = ({pm25_atm, pm10_atm, temp_f, humidity, pressure}) => {
   const result = {
     "observations": [
      { "kind": "measurement",
@@ -18,14 +70,14 @@ const postObservationData = obj => {
        "unit": { "name": "relative",
                  "symbol": "%"
                },
-       "value": obj.humidity
+       "value": humidity
      },
     { "kind": "measurement",
        "type": "temperature",
        "unit": { "name": "celcius",
                  "symbol": "°C"
                },
-       "value": obj.temperature
+       "value": temp_f
       
      },
      { "kind": "measurement",
@@ -33,7 +85,7 @@ const postObservationData = obj => {
        "unit": { "name": "millibars",
                  "symbol": "mbar"
                },
-       "value": obj.pressure
+       "value": pressure
       
      },
      { "kind": "measurement",
@@ -41,7 +93,7 @@ const postObservationData = obj => {
        "unit": { "name": "µg/m3",
                  "symbol": "µg/m3"
                },
-       "value": obj['pm2.5']
+       "value": pm25_atm
       
      },
      { "kind": "measurement",
@@ -49,7 +101,7 @@ const postObservationData = obj => {
        "unit": { "name": "µg/m3",
                  "symbol": "µg/m3"
                },
-       "value": obj['pm10.0']
+       "value": pm10_atm
       
      },
     ],
@@ -84,14 +136,14 @@ const postObservationData = obj => {
         headers: headers
       })
 };
-const postTableData = obj => {
+const postTableData = ({pm25_atm, pm10_atm, temp_f, humidity, pressure}) => {
   const result = { 
     "table": {
-      "temperature": obj.temperature,
-      "humidity": obj.humidity,
-      "pressure": obj.pressure,
-      "pm25": obj['pm2.5'],
-      "pm10": obj['pm10.0']
+      "temperature": temp_f,
+      "humidity": humidity,
+      "pressure": pressure,
+      "pm25": pm25_atm,
+      "pm10": pm10_atm
     },
   "thing": {
      "name": "purpleair_f7fe",
@@ -124,52 +176,6 @@ const postTableData = obj => {
       headers: headers
     })
 };
-const client = mqtt.connect(connectUrl, {
-  clientId,
-  clean: true,
-  connectTimeout: 4000,
-  username: 'sasautomation',
-  password: 'sasautomation',
-  reconnectPeriod: 1000,
-})
-/*const topic = ''
-client.on('connect', () => {
-  console.log('Connected')
-  client.subscribe([topic], () => {
-    console.log(`Subscribe to topic '${topic}'`)
-  })
-})*/
-client.on('message', (topic, payload) => {
-  //coming data here we will call processed data from here then update final copy
-  if (topic == "purpleair_f7fe"){
-    obj = JSON.parse(payload.toString().replace(/'/g, '"'))
-    Promise.all([postTableData(obj), postObservationData(obj)])
-    .then(function (results){
-      console.log("Result 1:: ",results[0]);
-      console.log("Result 2:: ",results[1]);
-    })
-    .catch(function(errors){
-      errors[0] && console.log(errors[0]); 
-      errors[1] && console.log(errors[1])
-    })
-    //postTableData(obj);
-  
-  }
-  console.log('Received Message:', topic, payload.toString())
-})
-client.on('connect', () => {
-  console.log("Connection established.")
-  client.subscribe(['purpleair_f7fe', 'iitb_sensor2/', 'iitb_sensor3', 'iitb_sensor4', 'iitb_sensor5'], { qos: 0, retain: false }, (error) => {
-    if (error) {
-      console.error(error)
-    }
-    console.log("Subscribed to topic:: purpleair_f7fe")
-  })
-
-})
-
-
-
 // Create and Save a new Sensor
 exports.create = (req, res) => {
   // Validate request
@@ -361,6 +367,7 @@ exports.store = (req, res) => {
   });
 }
   else{
+    console.log(req.body);
     const sensor_id = req.body["SensorId"];
     const pm25_atm_a = req.body["pm2_5_atm"];
     const pm25_atm_b = req.body["pm2_5_atm_b"];
@@ -375,27 +382,30 @@ exports.store = (req, res) => {
     const temp_f = req.body["current_temp_f"];
     const humidity = req.body["current_humidity"];
     const pressure = req.body["pressure"];
-    // write store logic here change as per table. [IMP]
-    console.log(sensor_id);
-    // Publishing HERE
-    //const result = {sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure}
-    //String(sensor_id)
-    //result = String(sensor_id)+","+String(pm25_atm)+","+String(pm10_atm)+","+String(temp_f)+","+String(humidity)+","+String(pressure)
-    client.publish('iitb_sensor1/', String(sensor_id)+","+String(pm25_atm)+","+String(pm10_atm)+","+String(temp_f)+","+String(humidity)+","+String(pressure) , { qos: 0, retain: false }, (error) => {
-      if (error) {
-        console.error(error)
-      }
+
+    const result = {sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure}
+    Promise.all([postTableData(result), postObservationData(result)])
+    .then(function (results){
+      console.log("Record has been saved.");
+      console.log("Result 1:: ",results[0].data);
+      console.log("Result 2:: ",results[1].data);
     })
-    // compare sensorid then save
-    sql.query("insert into iitb_sensor1(pm2_5_atm_a, pm2_5_atm_b, pm2_5_cf_1_a, pm2_5_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm2_5_atm, pm10_atm, temp_f, humidity, pressure) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [pm25_atm_a, pm25_atm_b, pm25_cf_1_a, pm25_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm25_atm, pm10_atm, temp_f, humidity, pressure], (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        res.status(401).send({
-          message: err.message || "Error occured while dumping."
+    .catch(function(errors){
+      errors[0] && console.log(errors[0]); 
+      errors[1] && console.log(errors[1]);
     });
-  }
-});
-    console.log("Record has been saved.");
+    //Publish Here with below function
+    //publishController(obj);
+    // compare sensorid then save MySQL
+//     sql.query("insert into iitb_sensor1(pm2_5_atm_a, pm2_5_atm_b, pm2_5_cf_1_a, pm2_5_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm2_5_atm, pm10_atm, temp_f, humidity, pressure) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [pm25_atm_a, pm25_atm_b, pm25_cf_1_a, pm25_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm25_atm, pm10_atm, temp_f, humidity, pressure], (err, res) => {
+//       if (err) {
+//         console.log("error: ", err);
+//         res.status(401).send({
+//           message: err.message || "Error occured while dumping."
+//     });
+//   }
+// });
+    //console.log("Record has been saved.");
   }
 };
 
