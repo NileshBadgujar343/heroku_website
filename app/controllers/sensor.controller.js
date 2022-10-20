@@ -1,3 +1,4 @@
+const {SENSOR1, SENSOR2, SENSOR3} = require("../constants/sensorName");
 const Sensor = require("../models/sensor.model.js");
 const utils = require('../../utils');
 const jwt = require('jsonwebtoken');
@@ -62,7 +63,7 @@ const publishController = (data) => {
         }
       })
 };
-const postObservationData = ({pm25_atm, pm10_atm, temp_f, humidity, pressure}) => {
+const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure}) => {
   const result = {
     "observations": [
      { "kind": "measurement",
@@ -106,15 +107,12 @@ const postObservationData = ({pm25_atm, pm10_atm, temp_f, humidity, pressure}) =
      },
     ],
      "thing": {
-       "name": "purpleair_f7fe",
+       "name": sensor_name,
        "geometry" : {
                     "type" : "Point",
-                    "coordinates" : [
-                            18.64579,
-                            73.79922
-                    ]
+                    coordinates
             },
-        "topic" : "purpleair_f7fe",
+      topic,
        "supportedObservationTypes" : {
                     "measurement" : [
                             "temperature",
@@ -136,7 +134,7 @@ const postObservationData = ({pm25_atm, pm10_atm, temp_f, humidity, pressure}) =
         headers: headers
       })
 };
-const postTableData = ({pm25_atm, pm10_atm, temp_f, humidity, pressure}) => {
+const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure}) => {
   const result = { 
     "table": {
       "temperature": temp_f,
@@ -146,15 +144,12 @@ const postTableData = ({pm25_atm, pm10_atm, temp_f, humidity, pressure}) => {
       "pm10": pm10_atm
     },
   "thing": {
-     "name": "purpleair_f7fe",
+     "name": sensor_name,
      "geometry" : {
                   "type" : "Point",
-                  "coordinates" : [
-                          -122.148882,
-                          37.485147
-                  ]
+                  coordinates
           },
-      "topic" : "purpleair_f7fe",
+    topic,
      "supportedObservationTypes" : {
                   "measurement" : [
                           "temperature",
@@ -369,6 +364,7 @@ exports.store = (req, res) => {
   else{
     console.log(req.body);
     const sensor_id = req.body["SensorId"];
+    const coordinates = [req.body.lat, req.body.lon];
     const pm25_atm_a = req.body["pm2_5_atm"];
     const pm25_atm_b = req.body["pm2_5_atm_b"];
     const pm25_cf_1_a = req.body["pm2_5_cf_1"];
@@ -382,8 +378,24 @@ exports.store = (req, res) => {
     const temp_f = req.body["current_temp_f"];
     const humidity = req.body["current_humidity"];
     const pressure = req.body["pressure"];
+    let sensor_name = "unregistered";
+    let topic = "unregistered";
+    switch (sensor_id) {
+      case SENSOR1:
+        sensor_name = "Sensor 1";
+        topic = "sensor1";
+        break;
+      case SENSOR2:
+        sensor_name = "Sensor 2";
+        topic = "sensor2";
+        break;
+      default:
+        sensor_name = "unregistered";
+        topic = "unregistered";
+        break;
+    }
 
-    const result = {sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure}
+    const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure}
     Promise.all([postTableData(result), postObservationData(result)])
     .then(function (results){
       console.log("Record has been saved.");
