@@ -54,6 +54,17 @@ client.on('connect', () => {
 
 })
 
+const waitToGet = async (params) => await calibratedData(params);
+
+const calibratedData = async (params) => {
+  const headers = {
+    'Content-Type': 'application/json'
+  }
+    return axios.post('http://89.47.165.123:5000/api', params,
+    {
+      headers: headers
+    })
+}
 const publishController = (data) => client.publish(data.topic, JSON.stringify(data) , { qos: 0, retain: false }, (error) => error && console.error(error));
 const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um}) => {
   const result = {
@@ -674,7 +685,12 @@ console.log(req.body);
     const temp_f = +((req.body["current_temp_f"]-32) * 5 / 9).toFixed(2);
     const humidity = req.body["current_humidity"];
     const pressure = req.body["pressure"];
-    let sensor_name = "unregistered"; 
+    // here add new predictable data to modify all stuff from here
+    
+    const pm25_bam = waitToGet([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
+    console.log("Calibrated Data::", pm25_bam);
+
+    let sensor_name = "unregistered";
     let topic = "unregistered";
     switch (sensor_id) {
       case SENSOR1:
