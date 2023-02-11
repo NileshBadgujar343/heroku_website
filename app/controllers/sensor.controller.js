@@ -54,6 +54,195 @@ client.on('connect', () => {
 
 })
 
+const postData = async (req) => {
+
+  const sensor_id = req.body["SensorId"];
+  // let sensor_name = req.body["Geo"];
+  const coordinates = [req.body.lat, req.body.lon];
+  const pm2_5_aqi_b = req.body['pm2.5_aqi_b'];
+  const pm2_5_aqi = req.body['pm2.5_aqi'];
+  const pm1_0_cf_1_b = req.body["pm1_0_cf_1_b"];
+  const pm1_0_cf_1 = req.body["pm1_0_cf_1"];
+  const p_0_3_um_b = req.body["p_0_3_um_b"];
+  const p_0_3_um = req.body["p_0_3_um"];
+  const pm2_5_cf_1_b = req.body["pm2_5_cf_1_b"];
+  const pm2_5_cf_1 = req.body["pm2_5_cf_1"];
+  const p_0_5_um_b = req.body["p_0_5_um_b"];
+  const p_0_5_um = req.body["p_0_5_um"];
+  const pm10_0_cf_1_b = req.body["pm10_0_cf_1_b"];
+  const pm10_0_cf_1 = req.body["pm10_0_cf_1"];
+  const p_1_0_um_b = req.body["p_1_0_um_b"];
+  const p_1_0_um = req.body["p_1_0_um"];
+  const pm1_0_atm_b = req.body["pm1_0_atm_b"];
+  const pm1_0_atm = req.body["pm1_0_atm"];
+  const p_2_5_um_b = req.body["p_2_5_um_b"];
+  const p_2_5_um = req.body["p_2_5_um"];
+  const pm2_5_atm_b = req.body["pm2_5_atm_b"];
+  const pm2_5_atm = req.body["pm2_5_atm"];
+  const p_5_0_um_b = req.body["p_5_0_um_b"];
+  const p_5_0_um = req.body["p_5_0_um"];
+  const pm10_0_atm_b = req.body["pm10_0_atm_b"];
+  const pm10_0_atm = req.body["pm10_0_atm"];
+  const p_10_0_um_b = req.body["p_10_0_um_b"];
+  const p_10_0_um = req.body["p_10_0_um"];
+  const pm25_atm = +((pm2_5_atm + pm2_5_atm_b) / 2).toFixed(2);
+  const pm10_atm = +((pm10_0_atm + pm10_0_atm_b) / 2).toFixed(2);
+  const temp_f = +((req.body["current_temp_f"]-32) * 5 / 9).toFixed(2);
+  const humidity = req.body["current_humidity"];
+  const pressure = req.body["pressure"];
+  // here add new predictable data to modify all stuff from here
+  
+  const pm25_bam = await waitToGet([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
+  console.log("Calibrated Data::", pm25_bam);
+
+  let sensor_name = "unregistered";
+  let topic = "unregistered";
+  switch (sensor_id) {
+    case SENSOR1:
+      sensor_name = "Hostel Hub";
+      topic = "sensor1";
+      break;
+    case SENSOR2:
+      sensor_name = "YP Gate";
+      topic = "sensor2";
+      break;
+    case SENSOR3:
+      sensor_name = "ANT Lab";
+      topic = "sensor3";
+      break;
+    case SENSOR4:
+      sensor_name = "VMCC";
+      topic = "sensor4";
+      break;
+    case SENSOR5:
+      sensor_name = "Central Library";
+      topic = "sensor5";
+      break;
+    case SENSOR6:
+      sensor_name = "Padmavati";
+      topic = "sensor6";
+      break;
+    case SENSOR7:
+      sensor_name = "Main Building";
+      topic = "sensor7";
+      break;
+    case SENSOR8:
+      sensor_name = "Sameer Hill";
+      topic = "sensor8";
+      break;
+    case SENSOR9:
+      sensor_name = "Gymkhana Ground";
+      topic = "sensor9";
+      break;
+    case SENSOR10:
+      sensor_name = "Aroma Cafe";
+      topic = "sensor10";
+      break;
+    case SENSOR11:
+      sensor_name = "SW50_E-BAM_CP";
+      topic = "sensor11";
+      break;
+    case SENSOR12:
+      sensor_name = "Before Filter_CP";
+      topic = "sensor12";
+      break;
+    case SENSOR13:
+      sensor_name = "After Filter_CP";
+      topic = "sensor13";
+      break;
+    case SENSOR14:
+      sensor_name = "SE_50_CPWD_CP";
+      topic = "sensor14";
+      break;
+    case SENSOR15:
+      sensor_name = "Before Filter_AV";
+      topic = "sensor15";
+      break;
+    case SENSOR16:
+      sensor_name = "After Filter_AV";
+      topic = "sensor16";
+      break;
+    case SENSOR17:
+      sensor_name = "NE_50_E-BAM_AV";
+      topic = "sensor17";
+      break;
+    case SENSOR18:
+      sensor_name = "SE-100_AV";
+      topic = "sensor18";
+      break;
+    case SENSOR19:
+      sensor_name = "Sensor 5_CP";
+      topic = "sensor19";
+      break;
+    case SENSOR20:
+      sensor_name = "Sensor 6_CP";
+      topic = "sensor20";
+      break;
+    case SENSOR21:
+      sensor_name = "Sensor 7_CP ";
+      topic = "sensor21";
+      break;
+    case SENSOR22:
+      sensor_name = "Sensor 8_CP";
+      topic = "sensor22";
+      break;
+    case SENSOR23:
+      sensor_name = "Sensor 9_CP";
+      topic = "sensor23";
+      break;
+    case SENSOR24:
+      sensor_name = "Sensor 7_AV";
+      topic = "sensor24";
+      break;
+    case SENSOR25:
+      sensor_name = "Sensor 8_AV";
+      topic = "sensor25";
+      break;
+    case SENSOR26:
+      sensor_name = "Sensor 9_AV";
+      topic = "sensor26";
+      break;
+    case SENSOR27:
+      sensor_name = "Sensor 5_AV";
+      topic = "sensor27";
+      break;
+    case SENSOR28:
+      sensor_name = "Sensor 6_AV";
+      topic = "sensor28";
+      break;
+    default:
+      console.log("default calling");
+      sensor_name = "unregistered";
+      topic = "unregistered";
+      break;
+  }
+
+  const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um}
+  console.log(result);
+  Promise.all([postTableData(result), postObservationData(result)])
+  .then(function (results){
+    console.log("Record has been saved.");
+    console.log("Result 1:: ",results[0].data);
+    console.log("Result 2:: ",results[1].data);
+  })
+  .catch(function(errors){
+   errors[0] &&  console.log(errors[0]);
+   errors[1] && console.log(errors[1]);
+  });
+  //Publish Here with below function
+  publishController(result);
+  // compare sensorid then save MySQL
+  //     sql.query("insert into iitb_sensor1(pm2_5_atm_a, pm2_5_atm_b, pm2_5_cf_1_a, pm2_5_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm2_5_atm, pm10_atm, temp_f, humidity, pressure) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [pm25_atm_a, pm25_atm_b, pm25_cf_1_a, pm25_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm25_atm, pm10_atm, temp_f, humidity, pressure], (err, res) => {
+  //       if (err) {
+  //         console.log("error: ", err);
+  //         res.status(401).send({
+  //           message: err.message || "Error occured while dumping."
+  //     });
+  //   }
+  //  });
+  //  console.log("Record has been saved.");
+
+}
 const waitToGet = async (params) => await calibratedData(params);
 
 const calibratedData = async (params) => {
@@ -650,192 +839,7 @@ exports.store = (req, res) => {
   });
 }
   else{
-console.log(req.body);
-    const sensor_id = req.body["SensorId"];
-   // let sensor_name = req.body["Geo"];
-    const coordinates = [req.body.lat, req.body.lon];
-    const pm2_5_aqi_b = req.body['pm2.5_aqi_b'];
-    const pm2_5_aqi = req.body['pm2.5_aqi'];
-    const pm1_0_cf_1_b = req.body["pm1_0_cf_1_b"];
-    const pm1_0_cf_1 = req.body["pm1_0_cf_1"];
-    const p_0_3_um_b = req.body["p_0_3_um_b"];
-    const p_0_3_um = req.body["p_0_3_um"];
-    const pm2_5_cf_1_b = req.body["pm2_5_cf_1_b"];
-    const pm2_5_cf_1 = req.body["pm2_5_cf_1"];
-    const p_0_5_um_b = req.body["p_0_5_um_b"];
-    const p_0_5_um = req.body["p_0_5_um"];
-    const pm10_0_cf_1_b = req.body["pm10_0_cf_1_b"];
-    const pm10_0_cf_1 = req.body["pm10_0_cf_1"];
-    const p_1_0_um_b = req.body["p_1_0_um_b"];
-    const p_1_0_um = req.body["p_1_0_um"];
-    const pm1_0_atm_b = req.body["pm1_0_atm_b"];
-    const pm1_0_atm = req.body["pm1_0_atm"];
-    const p_2_5_um_b = req.body["p_2_5_um_b"];
-    const p_2_5_um = req.body["p_2_5_um"];
-    const pm2_5_atm_b = req.body["pm2_5_atm_b"];
-    const pm2_5_atm = req.body["pm2_5_atm"];
-    const p_5_0_um_b = req.body["p_5_0_um_b"];
-    const p_5_0_um = req.body["p_5_0_um"];
-    const pm10_0_atm_b = req.body["pm10_0_atm_b"];
-    const pm10_0_atm = req.body["pm10_0_atm"];
-    const p_10_0_um_b = req.body["p_10_0_um_b"];
-    const p_10_0_um = req.body["p_10_0_um"];
-    const pm25_atm = +((pm2_5_atm + pm2_5_atm_b) / 2).toFixed(2);
-    const pm10_atm = +((pm10_0_atm + pm10_0_atm_b) / 2).toFixed(2);
-    const temp_f = +((req.body["current_temp_f"]-32) * 5 / 9).toFixed(2);
-    const humidity = req.body["current_humidity"];
-    const pressure = req.body["pressure"];
-    // here add new predictable data to modify all stuff from here
-    
-    const pm25_bam = waitToGet([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
-    console.log("Calibrated Data::", pm25_bam);
-
-    let sensor_name = "unregistered";
-    let topic = "unregistered";
-    switch (sensor_id) {
-      case SENSOR1:
-	sensor_name = "Hostel Hub";
-        topic = "sensor1";
-        break;
-      case SENSOR2:
-	sensor_name = "YP Gate";
-        topic = "sensor2";
-        break;
-      case SENSOR3:
-	sensor_name = "ANT Lab";
-        topic = "sensor3";
-        break;
-      case SENSOR4:
-	sensor_name = "VMCC";
-	topic = "sensor4";
-	break;
-      case SENSOR5:
-	sensor_name = "Central Library";
-        topic = "sensor5";
-        break;
-      case SENSOR6:
-	sensor_name = "Padmavati";
-        topic = "sensor6";
-        break;
-      case SENSOR7:
-	sensor_name = "Main Building";
- 	topic = "sensor7";
-	break;
-      case SENSOR8:
-	sensor_name = "Sameer Hill";
-	topic = "sensor8";
-	break;
-      case SENSOR9:
-	sensor_name = "Gymkhana Ground";
-	topic = "sensor9";
-	break;
-      case SENSOR10:
-        sensor_name = "Aroma Cafe";
-        topic = "sensor10";
-        break;
-      case SENSOR11:
-	sensor_name = "SW50_E-BAM_CP";
-	topic = "sensor11";
-	break;
-      case SENSOR12:
-	sensor_name = "Before Filter_CP";
-	topic = "sensor12";
-	break;
-      case SENSOR13:
-	sensor_name = "After Filter_CP";
-	topic = "sensor13";
-        break;
-      case SENSOR14:
-	sensor_name = "SE_50_CPWD_CP";
-	topic = "sensor14";
-	break;
-      case SENSOR15:
-	sensor_name = "Before Filter_AV";
-	topic = "sensor15";
-	break;
-      case SENSOR16:
-	sensor_name = "After Filter_AV";
-	topic = "sensor16";
-	break;
-      case SENSOR17:
-	sensor_name = "NE_50_E-BAM_AV";
-	topic = "sensor17";
-	break;
-      case SENSOR18:
-	sensor_name = "SE-100_AV";
-	topic = "sensor18";
-	break;
-      case SENSOR19:
-	sensor_name = "Sensor 5_CP";
-	topic = "sensor19";
-	break;
-      case SENSOR20:
-	sensor_name = "Sensor 6_CP";
-	topic = "sensor20";
-	break;
-      case SENSOR21:
-	sensor_name = "Sensor 7_CP ";
-	topic = "sensor21";
-	break;
-      case SENSOR22:
-	sensor_name = "Sensor 8_CP";
-	topic = "sensor22";
-	break;
-      case SENSOR23:
-	sensor_name = "Sensor 9_CP";
-	topic = "sensor23";
-	break;
-      case SENSOR24:
-	sensor_name = "Sensor 7_AV";
-	topic = "sensor24";
-	break;
-      case SENSOR25:
-	sensor_name = "Sensor 8_AV";
-	topic = "sensor25";
-	break;
-      case SENSOR26:
-	sensor_name = "Sensor 9_AV";
-	topic = "sensor26";
-	break;
-      case SENSOR27:
-	sensor_name = "Sensor 5_AV";
-	topic = "sensor27";
-	break;
-      case SENSOR28:
-	sensor_name = "Sensor 6_AV";
-	topic = "sensor28";
-	break;
-      default:
-        console.log("default calling");
-        sensor_name = "unregistered";
-        topic = "unregistered";
-        break;
-  }
-
-    const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um}
-   console.log(result);
-     Promise.all([postTableData(result), postObservationData(result)])
-    .then(function (results){
-      console.log("Record has been saved.");
-      console.log("Result 1:: ",results[0].data);
-      console.log("Result 2:: ",results[1].data);
-    })
-    .catch(function(errors){
-     errors[0] &&  console.log(errors[0]);
-     errors[1] && console.log(errors[1]);
-    });
-    //Publish Here with below function
-    publishController(result);
-    // compare sensorid then save MySQL
-//     sql.query("insert into iitb_sensor1(pm2_5_atm_a, pm2_5_atm_b, pm2_5_cf_1_a, pm2_5_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm2_5_atm, pm10_atm, temp_f, humidity, pressure) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [pm25_atm_a, pm25_atm_b, pm25_cf_1_a, pm25_cf_1_b, pm10_atm_a, pm10_atm_b, pm10_cf_1_a, pm10_cf_1_b, pm25_atm, pm10_atm, temp_f, humidity, pressure], (err, res) => {
-//       if (err) {
-//         console.log("error: ", err);
-//         res.status(401).send({
-//           message: err.message || "Error occured while dumping."
-//     });
-//   }
-// });
-    //console.log("Record has been saved.");
+    postData(req);
   }
 };
 
