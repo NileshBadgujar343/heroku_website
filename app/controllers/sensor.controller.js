@@ -249,12 +249,11 @@ const calibratedData = async (params) => {
   const headers = {
     'Content-Type': 'application/json'
   }
-    let response = axios.post('http://127.0.0.1:5000/api', params,
+    let response = await axios.post('http://127.0.0.1:5000/api', params,
     {
       headers: headers
     })
-    console.log("Response::", response);
-    return response;
+    return response.data;
 
   }
   catch(err){
