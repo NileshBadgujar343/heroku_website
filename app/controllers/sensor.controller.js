@@ -1,4 +1,4 @@
-const {SENSOR1, SENSOR2, SENSOR3, SENSOR4, SENSOR5, SENSOR6, SENSOR7, SENSOR8, SENSOR9, SENSOR10, SENSOR11, SENSOR12, SENSOR13, SENSOR14, SENSOR15, SENSOR16, SENSOR17, SENSOR18, SENSOR19, SENSOR20, SENSOR21, SENSOR22, SENSOR23, SENSOR24, SENSOR25, SENSOR26, SENSOR27, SENSOR28} = require("../constants/sensorName");
+// const {SENSOR1, SENSOR2, SENSOR3, SENSOR4, SENSOR5, SENSOR6, SENSOR7, SENSOR8, SENSOR9, SENSOR10, SENSOR11, SENSOR12, SENSOR13, SENSOR14, SENSOR15, SENSOR16, SENSOR17, SENSOR18, SENSOR19, SENSOR20, SENSOR21, SENSOR22, SENSOR23, SENSOR24, SENSOR25, SENSOR26, SENSOR27, SENSOR28} = require("../constants/sensorName");
 const Sensor = require("../models/sensor.model.js");
 const utils = require('../../utils');
 const jwt = require('jsonwebtoken');
@@ -90,140 +90,42 @@ const postData = async (req) => {
   const temp_f = +((req.body["current_temp_f"]-32) * 5 / 9).toFixed(2);
   const humidity = req.body["current_humidity"];
   const pressure = req.body["pressure"];
+  let sensorName = 'Unknown';
+  let topic = 'Unknown';
   // here add new predictable data to modify all stuff from here
   
+  sql.query("SELECT sensor_id, sensor_name, topic FROM metadata", (err, results) => {
+    if (err) {
+      console.log("error: ", err);
+      return;
+    }
+    
+    for (const row of results) {
+      if (row.sensor_id === sensor_id) {
+        sensorName = row.sensor_name;
+        topic = row.topic;
+        break;
+      }
+    }
+
+    // If no match is found, close the function
+    if (sensorName === 'Unknown') {
+      console.log('No matching sensor found.');
+      return;
+    }
+  });
+
   const pm25_bam = await calibratedData([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
   console.log("Calibrated Data::", pm25_bam);
 
-  let sensor_name = "unregistered";
-  let topic = "unregistered";
-  switch (sensor_id) {
-    case SENSOR1:
-      sensor_name = "Hostel Hub";
-      topic = "sensor1";
-      break;
-    case SENSOR2:
-      sensor_name = "YP Gate";
-      topic = "sensor2";
-      break;
-    case SENSOR3:
-      sensor_name = "ANT Lab";
-      topic = "sensor3";
-      break;
-    case SENSOR4:
-      sensor_name = "VMCC";
-      topic = "sensor4";
-      break;
-    case SENSOR5:
-      sensor_name = "Central Library";
-      topic = "sensor5";
-      break;
-    case SENSOR6:
-      sensor_name = "Padmavati";
-      topic = "sensor6";
-      break;
-    case SENSOR7:
-      sensor_name = "Main Building";
-      topic = "sensor7";
-      break;
-    case SENSOR8:
-      sensor_name = "Sameer Hill";
-      topic = "sensor8";
-      break;
-    case SENSOR9:
-      sensor_name = "Gymkhana Ground";
-      topic = "sensor9";
-      break;
-    case SENSOR10:
-      sensor_name = "Aroma Cafe";
-      topic = "sensor10";
-      break;
-    case SENSOR11:
-      sensor_name = "SW50_E-BAM_CP";
-      topic = "sensor11";
-      break;
-    case SENSOR12:
-      sensor_name = "Before Filter_CP";
-      topic = "sensor12";
-      break;
-    case SENSOR13:
-      sensor_name = "After Filter_CP";
-      topic = "sensor13";
-      break;
-    case SENSOR14:
-      sensor_name = "SE_50_CPWD_CP";
-      topic = "sensor14";
-      break;
-    case SENSOR15:
-      sensor_name = "Before Filter_AV";
-      topic = "sensor15";
-      break;
-    case SENSOR16:
-      sensor_name = "After Filter_AV";
-      topic = "sensor16";
-      break;
-    case SENSOR17:
-      sensor_name = "NE_50_E-BAM_AV";
-      topic = "sensor17";
-      break;
-    case SENSOR18:
-      sensor_name = "SE-100_AV";
-      topic = "sensor18";
-      break;
-    case SENSOR19:
-      sensor_name = "Sensor 5_CP";
-      topic = "sensor19";
-      break;
-    case SENSOR20:
-      sensor_name = "Sensor 6_CP";
-      topic = "sensor20";
-      break;
-    case SENSOR21:
-      sensor_name = "Sensor 7_CP ";
-      topic = "sensor21";
-      break;
-    case SENSOR22:
-      sensor_name = "Sensor 8_CP";
-      topic = "sensor22";
-      break;
-    case SENSOR23:
-      sensor_name = "Sensor 9_CP";
-      topic = "sensor23";
-      break;
-    case SENSOR24:
-      sensor_name = "Sensor 7_AV";
-      topic = "sensor24";
-      break;
-    case SENSOR25:
-      sensor_name = "Sensor 8_AV";
-      topic = "sensor25";
-      break;
-    case SENSOR26:
-      sensor_name = "Sensor 9_AV";
-      topic = "sensor26";
-      break;
-    case SENSOR27:
-      sensor_name = "Sensor 5_AV";
-      topic = "sensor27";
-      break;
-    case SENSOR28:
-      sensor_name = "Sensor 6_AV";
-      topic = "sensor28";
-      break;
-    default:
-      console.log("default calling");
-      sensor_name = "unregistered";
-      topic = "unregistered";
-      break;
-  }
-
-  const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}
+  console.log(sensorName, " triggered");
+  const result = {sensorName, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}
   // console.log(result);
   Promise.all([postTableData(result), postObservationData(result)])
   .then(function (results){
     console.log("Record has been saved.");
-    console.log("Result 1:: ",results[0].data);
-    console.log("Result 2:: ",results[1].data);
+    // console.log("Result 1:: ",results[0].data);
+    // console.log("Result 2:: ",results[1].data);
   })
   .catch(function(errors){
    errors[0] &&  console.log(errors[0]);
