@@ -90,7 +90,7 @@ const postData = async (req) => {
   const temp_f = +((req.body["current_temp_f"]-32) * 5 / 9).toFixed(2);
   const humidity = req.body["current_humidity"];
   const pressure = req.body["pressure"];
-  let sensorName = 'Unknown';
+  let sensor_name = 'Unknown';
   let topic = 'Unknown';
   // here add new predictable data to modify all stuff from here
   
@@ -102,14 +102,14 @@ const postData = async (req) => {
     
     for (const row of results) {
       if (row.sensor_id === sensor_id) {
-        sensorName = row.sensor_name;
+        sensor_name = row.sensor_name;
         topic = row.topic;
         break;
       }
     }
 
     // If no match is found, close the function
-    if (sensorName === 'Unknown') {
+    if (sensor_name === 'Unknown') {
       console.log('No matching sensor found.');
       return;
     }
@@ -118,8 +118,8 @@ const postData = async (req) => {
   const pm25_bam = await calibratedData([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
   console.log("Calibrated Data::", pm25_bam);
 
-  console.log(sensorName, " triggered");
-  const result = {sensorName, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}
+  console.log(sensor_name, " triggered");
+  const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}
   // console.log(result);
   Promise.all([postTableData(result), postObservationData(result)])
   .then(function (results){
