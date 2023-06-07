@@ -463,7 +463,7 @@ const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_at
                             "pm10_0_atm",
                             "p_10_0_um_b",
                             "p_10_0_um",
-                            // "pm25_bam"
+                            "pm25_bam"
                     ],
                     "event" : [ ],
             }
@@ -478,7 +478,7 @@ const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_at
         headers: headers
       })
 };
-const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um  }) => {
+const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}) => {
   const result = { 
     "table": {
       "temperature": temp_f,
@@ -511,7 +511,8 @@ const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, tem
       "pm10_0_atm_b": pm10_0_atm_b,
       "pm10_0_atm": pm10_0_atm,
       "p_10_0_um_b": p_10_0_um_b,
-      "p_10_0_um": p_10_0_um
+      "p_10_0_um": p_10_0_um,
+      "pm25_bam": pm25_bam
     },
   "thing": {
      "name": sensor_name,
@@ -552,7 +553,8 @@ const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, tem
                           "pm10_0_atm_b",
                           "pm10_0_atm",
                           "p_10_0_um_b",
-                          "p_10_0_um"
+                          "p_10_0_um",
+                          "pm25_bam"
                   ],
                   "event" : [ ]
           }
