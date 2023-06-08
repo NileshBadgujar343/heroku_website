@@ -118,8 +118,11 @@ const postData = async (req) => {
   const pm25_bam = await calibratedData([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
   console.log("Calibrated Data::", pm25_bam);
 
+  const [biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol] = await apportionData([(p_0_3_um + p_0_3_um_b)/2, (p_0_5_um + p_0_5_um_b)/2, (p_1_0_um + p_1_0_um_b)/2, (p_2_5_um + p_2_5_um_b)/2, pm25_atm]); // call here async/await function to get data from flask app.
+  console.log("Apportion Data Array::", biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol);
+
   console.log(sensor_name, " triggered");
-  const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}
+  const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol}
   // console.log(result);
   Promise.all([postTableData(result), postObservationData(result)])
   .then(function (results){
@@ -163,8 +166,27 @@ const calibratedData = async (params) => {
     return undefined;
   }
 }
+
+const apportionData = async (params) => {
+  try{
+  const headers = {
+    'Content-Type': 'application/json'
+  }
+    let response = await axios.post('http://127.0.0.1:5000/apportion', params,
+    {
+      headers: headers
+    })
+    return response.data;
+
+  }
+  catch(err){
+    console.log("ERR::", err);
+    return undefined;
+  }
+}
+
 const publishController = (data) => client.publish(data.topic, JSON.stringify(data) , { qos: 0, retain: false }, (error) => error && console.error(error));
-const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}) => {
+const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol}) => {
   const result = {
     "observations": [
      { "kind": "measurement",
@@ -422,6 +444,62 @@ const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_at
        "value": pm25_bam
       
      },
+     { "kind": "measurement",
+       "type": "biomass_burning",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": biomass_burning
+     },
+     { "kind": "measurement",
+       "type": "dust",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": dust
+     },
+     { "kind": "measurement",
+       "type": "gasoline_vehicle",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": gasoline_vehicle
+     },
+     { "kind": "measurement",
+       "type": "diesel_vehicle",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": diesel_vehicle
+     },
+     { "kind": "measurement",
+       "type": "coal_combustion",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": coal_combustion
+     },
+     { "kind": "measurement",
+       "type": "waste_burning",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": waste_burning
+     },
+     { "kind": "measurement",
+       "type": "industries",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": industries
+     },
+     { "kind": "measurement",
+       "type": "secondary_aerosol",
+       "unit": { "name": "µg/m3",
+                 "symbol": "µg/m3"
+               },
+       "value": secondary_aerosol
+     },
     ],
      "thing": {
        "name": sensor_name,
@@ -478,7 +556,7 @@ const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_at
         headers: headers
       })
 };
-const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam}) => {
+const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol}) => {
   const result = { 
     "table": {
       "temperature": temp_f,
@@ -512,7 +590,15 @@ const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, tem
       "pm10_0_atm": pm10_0_atm,
       "p_10_0_um_b": p_10_0_um_b,
       "p_10_0_um": p_10_0_um,
-      "pm25_bam": pm25_bam
+      "pm25_bam": pm25_bam,
+      "biomass_burning": biomass_burning,
+      "dust": dust,
+      "gasoline_vehicle": gasoline_vehicle, 
+      "diesel_vehicle": diesel_vehicle, 
+      "coal_combustion": coal_combustion, 
+      "waste_burning": waste_burning, 
+      "industries": industries, 
+      "secondary_aerosol": secondary_aerosol
     },
   "thing": {
      "name": sensor_name,
@@ -710,6 +796,29 @@ exports.signout = (req, res) => {
     
   });
   return res.json({ email: email });
+};
+// Update sensor mac-id
+exports.updateMac = (req, res) => {
+  const {macId, slot} = req.body;
+  sql.query(`UPDATE metadata SET sensor_id = '${macId}' WHERE id = ${slot}; `, (err, results) => {
+    if (err) {
+      console.log("error: ", err);
+      return res.status(500)
+    }
+    else res.status(200).send(results)
+  })  
+};
+
+// Update sensor name
+exports.updateName = (req, res) => {
+  const {newname, slot} = req.body;
+  sql.query(`UPDATE metadata SET sensor_name = '${newname}' WHERE id = ${slot}; `, (err, results) => {
+    if (err) {
+      console.log("error: ", err);
+      return res.status(500)
+    }
+    else res.status(200).send(results)
+  })  
 };
 
 exports.verify = (req, res) => {

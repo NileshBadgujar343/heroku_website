@@ -59,4 +59,10 @@ module.exports = app => {
   
     // Create a new Product
     app.delete("/sensors", sensors.deleteAll);
+
+    // To update mac-id
+    app.put("/updatemac", sensors.updateMac);
+
+    // To update sensor-name
+    app.put("/updatename", sensors.updateName);
   };
