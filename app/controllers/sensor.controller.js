@@ -92,9 +92,10 @@ const postData = async (req) => {
   const pressure = req.body["pressure"];
   let sensor_name = 'Unknown';
   let topic = 'Unknown';
+  let slot = 0;
   // here add new predictable data to modify all stuff from here
   
-  sql.query("SELECT sensor_id, sensor_name, topic FROM metadata", (err, results) => {
+  sql.query("SELECT * FROM metadata", (err, results) => {
     if (err) {
       console.log("error: ", err);
       return;
@@ -104,6 +105,7 @@ const postData = async (req) => {
       if (row.sensor_id === sensor_id) {
         sensor_name = row.sensor_name;
         topic = row.topic;
+        slot = row.id;
         break;
       }
     }
@@ -122,7 +124,7 @@ const postData = async (req) => {
   console.log("Apportion Data Array::", biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol);
 
   console.log(sensor_name, " triggered");
-  const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol}
+  const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol, slot}
   // console.log(result);
   Promise.all([postTableData(result), postObservationData(result)])
   .then(function (results){
@@ -186,7 +188,7 @@ const apportionData = async (params) => {
 }
 
 const publishController = (data) => client.publish(data.topic, JSON.stringify(data) , { qos: 0, retain: false }, (error) => error && console.error(error));
-const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol}) => {
+const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol, slot}) => {
   const result = {
     "observations": [
      { "kind": "measurement",
@@ -503,6 +505,7 @@ const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_at
     ],
      "thing": {
        "name": sensor_name,
+       slot,
        "geometry" : {
                     "type" : "Point",
                     coordinates
@@ -556,7 +559,7 @@ const postObservationData = ({sensor_name, topic, coordinates, pm25_atm, pm10_at
         headers: headers
       })
 };
-const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol}) => {
+const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol, slot}) => {
   const result = { 
     "table": {
       "temperature": temp_f,
@@ -602,6 +605,7 @@ const postTableData = ({sensor_name, topic, coordinates, pm25_atm, pm10_atm, tem
     },
   "thing": {
      "name": sensor_name,
+     slot,
      "geometry" : {
                   "type" : "Point",
                   coordinates
