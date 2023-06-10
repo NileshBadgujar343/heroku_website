@@ -169,6 +169,25 @@ const calibratedData = async (params) => {
   }
 }
 
+const sensorChange = async (params) => {
+  try{
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhcyIsImlhdCI6MTY2NDM0MzU0MX0.zGsrdmDWjc9pWUBgUSQdTBaeaLzcBGyZ6sZRPxW2Ryk'
+    }
+    let response = await axios.put('http://89.47.165.123:8080/api/things', params,
+    {
+      headers: headers
+    })
+    return response.data;
+
+  }
+  catch(err){
+    console.log("ERR::", err);
+    return undefined;
+  }
+}
+
 const apportionData = async (params) => {
   try{
   const headers = {
@@ -814,8 +833,9 @@ exports.updateMac = (req, res) => {
 };
 
 // Update sensor name
-exports.updateName = (req, res) => {
+exports.updateName = async (req, res) => {
   const {newname, slot} = req.body;
+  await sensorChange({slot, newname});
   sql.query(`UPDATE metadata SET sensor_name = '${newname}' WHERE id = ${slot}; `, (err, results) => {
     if (err) {
       console.log("error: ", err);
