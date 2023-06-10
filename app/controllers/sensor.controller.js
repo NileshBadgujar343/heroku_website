@@ -835,7 +835,7 @@ exports.updateMac = (req, res) => {
 // Update sensor name
 exports.updateName = async (req, res) => {
   const {newname, slot} = req.body;
-  await sensorChange({slot, newname});
+  await sensorChange({slot, newName: newname});
   sql.query(`UPDATE metadata SET sensor_name = '${newname}' WHERE id = ${slot}; `, (err, results) => {
     if (err) {
       console.log("error: ", err);
