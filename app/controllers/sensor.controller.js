@@ -1,5 +1,6 @@
 // const {SENSOR1, SENSOR2, SENSOR3, SENSOR4, SENSOR5, SENSOR6, SENSOR7, SENSOR8, SENSOR9, SENSOR10, SENSOR11, SENSOR12, SENSOR13, SENSOR14, SENSOR15, SENSOR16, SENSOR17, SENSOR18, SENSOR19, SENSOR20, SENSOR21, SENSOR22, SENSOR23, SENSOR24, SENSOR25, SENSOR26, SENSOR27, SENSOR28} = require("../constants/sensorName");
 const Sensor = require("../models/sensor.model.js");
+const httpStatus = require("http-status");
 const utils = require('../../utils');
 const jwt = require('jsonwebtoken');
 const {connection: sql} = require("../models/db");
@@ -828,7 +829,8 @@ exports.updateMac = (req, res) => {
       console.log("error: ", err);
       return res.status(500)
     }
-    else res.status(200).send(results)
+    return res.sendStatus(httpStatus.OK);
+    // else res.status(200).send(results)
   })  
 };
 
@@ -841,7 +843,9 @@ exports.updateName = async (req, res) => {
       console.log("error: ", err);
       return res.status(500)
     }
-    else res.status(200).send(results)
+    console.log(results);
+    return res.sendStatus(httpStatus.OK);
+    // else res.status(200).send(results)
   })  
 };
 
