@@ -111,20 +111,22 @@ const postData = async (req) => {
       }
     }
 
-    // If no match is found, close the function
-    if (sensor_name === 'Unknown') {
-      console.log('No matching sensor found.');
-      return;
-    }
+    
   });
+
+  // If no match is found, close the function
+  if (sensor_name === 'Unknown') {
+    console.log('No matching sensor found.');
+    return;
+  }
 
   const pm25_bam = await calibratedData([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
   console.log("Calibrated Data::", pm25_bam);
 
   const [biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol] = await apportionData([(p_0_3_um + p_0_3_um_b)/2, (p_0_5_um + p_0_5_um_b)/2, (p_1_0_um + p_1_0_um_b)/2, (p_2_5_um + p_2_5_um_b)/2, pm25_atm]); // call here async/await function to get data from flask app.
-  console.log("Apportion Data Array::", biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol);
+  // console.log("Apportion Data Array::", biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol);
 
-  console.log(sensor_name, " triggered");
+  console.log(sensor_name, " Triggered");
   const result = {sensor_name, topic, coordinates, sensor_id, pm25_atm, pm10_atm, temp_f, humidity, pressure, pm2_5_aqi_b, pm2_5_aqi, pm1_0_cf_1_b, pm1_0_cf_1, p_0_3_um_b, p_0_3_um, pm2_5_cf_1_b, pm2_5_cf_1, p_0_5_um_b, p_0_5_um, pm10_0_cf_1_b, pm10_0_cf_1, p_1_0_um_b, p_1_0_um, pm1_0_atm_b, pm1_0_atm, p_2_5_um_b, p_2_5_um, pm2_5_atm_b, pm2_5_atm, p_5_0_um_b, p_5_0_um, pm10_0_atm_b, pm10_0_atm, p_10_0_um_b, p_10_0_um, pm25_bam, biomass_burning, dust, gasoline_vehicle, diesel_vehicle, coal_combustion, waste_burning, industries, secondary_aerosol, slot}
   // console.log(result);
   Promise.all([postTableData(result), postObservationData(result)])
