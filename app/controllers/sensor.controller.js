@@ -54,18 +54,24 @@ client.on('connect', () => {
   // })
 
 })
+
 const findSensor = async (sensor_id) => {
   let sensor_name = 'Unknown';
   let topic = 'Unknown';
   let slot = 0;
   let skip = true;
 
-  sql.query("SELECT * FROM metadata", (err, results) => {
-    if (err) {
-      console.log("error: ", err);
-      return;
-    }
-    
+  try {
+    const results = await new Promise((resolve, reject) => {
+      sql.query("SELECT * FROM metadata", (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
     for (const row of results) {
       if (row.sensor_id === sensor_id) {
         sensor_name = row.sensor_name;
@@ -75,15 +81,17 @@ const findSensor = async (sensor_id) => {
         break;
       }
     }
-    // If no match is found, close the function
+
     if (sensor_name === 'Unknown') {
       console.log('No matching sensor found.');
     }
-    
-  });
 
-  let obj = {skip, sensor_name, topic, slot};
-  return obj;
+    let obj = { skip, sensor_name, topic, slot };
+    return obj;
+  } catch (error) {
+    console.log('Error retrieving sensor data:', error);
+    return obj;
+  }
 };
 
 const postData = async (req) => {
