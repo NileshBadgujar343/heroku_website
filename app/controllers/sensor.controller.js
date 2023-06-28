@@ -125,7 +125,7 @@ const postData = async (req) => {
   // here add new predictable data to modify all stuff from here
   
   let {skip, sensor_name, topic, slot} = await findSensor(sensor_id);
-
+  console.log(skip, sensor_name);
   if (skip) return;
 
   const pm25_bam = await calibratedData([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
