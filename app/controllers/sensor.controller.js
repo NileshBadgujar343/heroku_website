@@ -54,6 +54,36 @@ client.on('connect', () => {
   // })
 
 })
+const findSensor = async (sensor_id) => {
+  let sensor_name = 'Unknown';
+  let topic = 'Unknown';
+  let slot = 0;
+  let skip = false;
+
+  sql.query("SELECT * FROM metadata", (err, results) => {
+    if (err) {
+      console.log("error: ", err);
+      return {"skip": true, sensor_name, topic, slot};
+    }
+    
+    for (const row of results) {
+      if (row.sensor_id === sensor_id) {
+        sensor_name = row.sensor_name;
+        topic = row.topic;
+        slot = row.id;
+        break;
+      }
+    }
+    // If no match is found, close the function
+    if (sensor_name === 'Unknown') {
+      console.log('No matching sensor found.');
+      skip = true;
+    }
+    let obj = {skip, sensor_name, topic, slot};
+    return obj;
+  });
+
+};
 
 const postData = async (req) => {
 
@@ -91,34 +121,10 @@ const postData = async (req) => {
   const temp_f = +((req.body["current_temp_f"]-32) * 5 / 9).toFixed(2);
   const humidity = req.body["current_humidity"];
   const pressure = req.body["pressure"];
-  let sensor_name = 'Unknown';
-  let topic = 'Unknown';
-  let slot = 0;
-  let skip = false;
+  
   // here add new predictable data to modify all stuff from here
   
-  sql.query("SELECT * FROM metadata", (err, results) => {
-    if (err) {
-      console.log("error: ", err);
-      return;
-    }
-    
-    for (const row of results) {
-      if (row.sensor_id === sensor_id) {
-        sensor_name = row.sensor_name;
-        topic = row.topic;
-        slot = row.id;
-        break;
-      }
-    }
-    // If no match is found, close the function
-    if (sensor_name === 'Unknown') {
-      console.log('No matching sensor found.');
-      skip = true;
-    }
-
-    
-  });
+  let {skip, sensor_name, topic, slot} = await findSensor(sensor_id);
 
   if (skip) return;
 
