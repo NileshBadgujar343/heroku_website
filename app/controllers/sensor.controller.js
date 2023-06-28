@@ -94,6 +94,7 @@ const postData = async (req) => {
   let sensor_name = 'Unknown';
   let topic = 'Unknown';
   let slot = 0;
+  let skip = false;
   // here add new predictable data to modify all stuff from here
   
   sql.query("SELECT * FROM metadata", (err, results) => {
@@ -110,15 +111,16 @@ const postData = async (req) => {
         break;
       }
     }
+    // If no match is found, close the function
+    if (sensor_name === 'Unknown') {
+      console.log('No matching sensor found.');
+      skip = true;
+    }
 
     
   });
 
-  // If no match is found, close the function
-  if (sensor_name === 'Unknown') {
-    console.log('No matching sensor found.');
-    return;
-  }
+  if (skip) return;
 
   const pm25_bam = await calibratedData([pm25_atm, humidity, temp_f]); // call here async/await function to get data from flask app.
   console.log("Calibrated Data::", pm25_bam);
