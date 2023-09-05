@@ -85,6 +85,9 @@ const findSensor = async (sensor_id) => {
     if (sensor_name === 'Unknown') {
       console.log('No matching sensor found.');
     }
+    if (sensor_name === 'bc:ff:4d:57:23:b5') {
+      console.log('############################### New Sensor Found ##################################################');
+    }
 
     let obj = { skip, sensor_name, topic, slot };
     return obj;
