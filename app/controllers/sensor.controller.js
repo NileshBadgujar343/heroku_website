@@ -136,6 +136,7 @@ const postData = async (req) => {
   
   // here add new predictable data to modify all stuff from here
   
+  console.log("Sensor Id::", sensor_id);
   let {skip, sensor_name, topic, slot} = await findSensor(sensor_id);
   if (skip) return;
 
