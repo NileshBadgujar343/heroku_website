@@ -914,7 +914,7 @@ exports.store = (req, res) => {
   const key = req.headers['accesskey'];
   if(key != accessKey){
     res.status(401).send({
-      message: err.message || "Invalid AccessKey."
+      message: "Invalid AccessKey."
   });
 }
   else{
