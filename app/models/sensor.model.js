@@ -157,6 +157,10 @@ Sensor.findById = (sensorId, result) => {
   });
 };
 
+
+
+
+
 Sensor.getAll = (tableId, value, result) => {
   var sDate = value.split(",");
   sql.query(`SELECT * FROM sensor${tableId} WHERE (timeat BETWEEN '${sDate[0]}' AND '${sDate[1]}')`, (err, res) => {
@@ -179,6 +183,85 @@ Sensor.getTAll = (value, result) => {
       return;
     }
     result(null, res);
+    return;
+  });
+};
+
+// API endpoint to fetch all categories
+Sensor.getCategories = (result) => {
+  sql.query('SELECT c.id, c.name, COALESCE(ci.image_path, NULL) AS image_path FROM categories c LEFT JOIN category_images ci ON c.id = ci.category_id', (err, res) => {
+    if (err) {
+      console.error('Error fetching categories:', err);
+      result(err, null);
+      return;
+    }
+    result(null, res);
+  });
+};
+
+  
+
+// API endpoint to fetch all products of a specific category by name
+// app.get('/products/:categoryName', (req, res) => {
+//   const categoryName = req.params.categoryName;
+
+//   pool.getConnection((err, connection) => {
+//     if (err) {
+//       console.error('Error getting MySQL connection:', err);
+//       res.status(500).json({ error: 'Internal server error' });
+//       return;
+//     }
+
+//     // Fetch category ID by name
+//     connection.query('SELECT id FROM categories WHERE name = ?', [categoryName], async (err, categoryRows) => {
+//       if (err || categoryRows.length === 0) {
+//         connection.release(); // Release the connection back to the pool
+//         console.error('Error fetching category ID:', err);
+//         res.status(404).json({ error: 'Category not found' });
+//         return;
+//       }
+
+//       const categoryId = categoryRows[0].id;
+
+//       // Fetch all products belonging to the category by ID
+//       connection.query('SELECT * FROM products WHERE category_id = ?', [categoryId], (err, productRows) => {
+//         connection.release(); // Release the connection back to the pool
+//         if (err) {
+//           console.error('Error fetching products:', err);
+//           res.status(500).json({ error: 'Internal server error' });
+//           return;
+//         }
+//         res.json(productRows);
+//       });
+//     });
+//   });
+// });
+
+// Fetch category ID by name
+Sensor.getCategoryId = (categoryName, result) => {
+  sql.query('SELECT id FROM categories WHERE name = ?', [categoryName], (err, categoryRows) => {
+    if (err || categoryRows.length === 0) {
+      console.error('Error fetching category ID:', err);
+      result(err, null);
+      return;
+    }
+    result(null, categoryRows);
+    return;
+  });
+};
+
+// Fetch products by categoryID
+Sensor.getProductsById = (categoryId, result) => {
+  sql.query(`SELECT p.id, p.name AS product_name, p.description, p.price, IFNULL(i.path, NULL) AS image_path
+  FROM products p
+  LEFT JOIN images i ON p.id = i.product_id
+  WHERE p.category_id = ?`, [categoryId], (err, productRows) => {
+    if (err) {
+      console.error('Error fetching products:', err);
+      result(err, null);
+      return; 
+    }
+    result(null, productRows);
     return;
   });
 };
@@ -325,5 +408,19 @@ Sensor.removeAll = result => {
     result(null, res);
   });
 };
+
+// code to handle images of products upload
+// const multer = require('multer');
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'uploads/');
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + '-' + file.originalname);
+//   }
+// });
+
+// const upload = multer({ storage: storage });
 
 module.exports = Sensor;

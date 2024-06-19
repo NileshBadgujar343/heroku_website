@@ -10,12 +10,12 @@ const connection = mysql.createConnection({
 });
 
 //For temporary exporter
-const connection2 = mysql.createConnection({
-  host: dbConfig.HOST,
-  user: dbConfig.USER,
-  password: dbConfig.PASSWORD,
-  database: dbConfig.DB //"cp"
-});
+// const connection2 = mysql.createConnection({
+//   host: dbConfig.HOST,
+//   user: dbConfig.USER,
+//   password: dbConfig.PASSWORD,
+//   database: dbConfig.DB //"cp"
+// });
 
 // open the MySQL connection
 connection.connect(error => {
@@ -24,9 +24,9 @@ connection.connect(error => {
 });
 
 // open the MySQL connection2
-connection2.connect(error => {
-  if (error) throw error;
-  console.log("Successfully connected to the database2.");
-});
+// connection2.connect(error => {
+//   if (error) throw error;
+//   console.log("Successfully connected to the database2.");
+// });
 
-module.exports = { connection , connection2 };
+module.exports = { connection };

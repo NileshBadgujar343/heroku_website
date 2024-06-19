@@ -909,6 +909,40 @@ exports.findTAll = (req, res) => {
     else res.send(data);
   });
 };
+
+exports.categories = (req, res) => {
+  Sensor.getCategories((err, data) => {
+    if (err)
+      res.status(500).json({
+        message:
+          err.message || "Some error occurred while retrieving data."
+      });
+    else res.send(data);
+    // console.log("data ======",data);
+  });
+};
+
+exports.products = (req, res) => {
+  const categoryName = req.params.categoryName;
+
+  // Fetch category ID by name
+  Sensor.getCategoryId(categoryName, (err, categoryRows) => {
+    if (err) {
+      res.status(404).json({ error: 'Category not found' });
+    }
+    const categoryId = categoryRows[0].id;
+    console.log(categoryId);
+
+    Sensor.getProductsById(categoryId, (err, productRows) => {
+      if (err)
+      res.status(500).json({ error: 'Internal server error' });
+      else res.json(productRows);
+    });
+  });
+
+  
+};
+
 exports.store = (req, res) => {
   accessKey = "habvuhybduifhbhjBinng"
   const key = req.headers['accesskey'];

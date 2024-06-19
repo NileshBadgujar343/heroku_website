@@ -3,22 +3,26 @@ module.exports = app => {
   
 
     // Create a new Product
-    app.post("/users/register", sensors.create);
+    // app.post("/users/register", sensors.create);
 
     // Sign in User
-    app.post("/users/signin", sensors.signin);
+    // app.post("/users/signin", sensors.signin);
 
     // Check Single user Login
-    app.post("/verifyFtoken", sensors.verify);
+    // app.post("/verifyFtoken", sensors.verify);
 
     // Signout User
-    app.post("/users/signout", sensors.signout);
+    // app.post("/users/signout", sensors.signout);
   
     // Retrieve all Data
     app.get("/sensors/:tableId/:value", sensors.findAll);
 
     // Retrieve All tables data
     app.get("/sensor/all/:value", sensors.findTAll);
+
+    app.get("/categories", sensors.categories);
+
+    app.get("/products/:categoryName", sensors.products)
 
     //IITB Changes here
     app.post("/sensordata", sensors.store);

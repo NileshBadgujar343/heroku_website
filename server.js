@@ -1,6 +1,8 @@
 require('dotenv').config();
 const {connection:sql} = require("./app/models/db.js");
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
@@ -9,6 +11,16 @@ const utils = require('./utils');
 const app = express();
 const port = process.env.PORT || 8000;
 //const userData[] = require('./userdata');
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb){
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb){
+    cb(null, file.filename + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
 
 // static user details
 const userData = {
@@ -27,32 +39,79 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+
+
+
+// const fetch =  (req, res, next) => {
+
+//     let query =  `SELECT * FROM categories WHERE name = ?`;
+//       connection.query(query, (err, results) => {
+//         if (!err) {
+//           return res.status(200).json(results);
+//         } else {
+//           return res.status(500).json(err);
+//         }
+//       });
+//     };
+
+//     exports.fetch = fetch;
+  
+
+
+
+
 //middleware that checks if JWT token exists and verifies it if it does exist.
 //In all future routes, this helps to know if the request is authenticated or not.
-app.use(function (req, res, next) {
-  // check header or url parameters or post parameters for token
-  var token = req.headers['authorization'];
-  if (!token) return next(); //if no token, continue
 
-  token = token.replace('Bearer ', '');
-  jwt.verify(token, process.env.JWT_SECRET, function (err, user) {
-    if (err) {
-      return res.status(401).json({
-        error: true,
-        message: "Invalid user."
-      });
-    } else {
-      req.user = user; //set the user to req so other routes can use it
-      next();
-    }
-  });
-});
+
+// app.use(function (req, res, next) {
+//   // check header or url parameters or post parameters for token
+//   var token = req.headers['authorization'];
+//   if (!token) return next(); //if no token, continue
+
+//   token = token.replace('Bearer ', '');
+//   jwt.verify(token, process.env.JWT_SECRET, function (err, user) {
+//     if (err) {
+//       return res.status(401).json({
+//         error: true,
+//         message: "Invalid user."
+//       });
+//     } else {
+//       req.user = user; //set the user to req so other routes can use it
+//       next();
+//     }
+//   });
+// });
 
 
 // request handlers
 app.get('/', (req, res) => {
-  if (!req.user) return res.status(401).json({ success: false, message: 'Invalid user to access it.' });
-  res.send('Welcome to the REST API - ' + req.user.name);
+  // if (!req.user) return res.status(401).json({ success: false, message: 'Invalid user to access it.' });
+  res.send('Welcome to the E-commerce REST API - ');
+});
+
+const upload = multer({storage: storage});
+
+// Combined endpoint for file upload and saving image path to the database
+app.post('/upload-and-save', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const { productId } = req.body; // Assuming you send productId from frontend
+  
+  const imagePath = req.file.path;
+  console.log('image ----------- ', imagePath)
+
+  const insertQuery = 'INSERT INTO images (product_id, path) VALUES (?, ?)'; 
+  sql.query(insertQuery, [productId, imagePath], (err, res) => {
+    if (err) {
+      console.error('Error inserting image path:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    res.json({ message: 'Image uploaded and path saved to database' });
+  });
 });
 
 
@@ -181,7 +240,7 @@ app.post('/verifyFtoken', function (req, res) {
     });
     
 });*/
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 require("./app/routes/sensor.routes.js")(app);
 app.listen(port, () => {
